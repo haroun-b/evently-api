@@ -1,0 +1,22 @@
+{
+  "name": "2up-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/haroun-b/2up-api.git"
+  },
+  "author": "Arthur V. | Haroun B.",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/haroun-b/2up-api/issues"
+  },
+  "homepage": "https://github.com/haroun-b/2up-api#readme",
+  "dependencies": {
+    "mongoose": "^6.4.1"
+  }
+}
