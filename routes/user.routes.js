@@ -2,7 +2,7 @@ const router = require("express").Router();
 // const isAuthenticated = require("../middleware/isAuthenticated");
 const User = require("../models/User.model");
 
-// Get user info
+// Get my user info
 router.get("/user", async (req, res, next) => {
   try {
     const id = req.user._id;
@@ -13,6 +13,7 @@ router.get("/user", async (req, res, next) => {
   }
 });
 
+// Get other user info
 router.get("/user/:id", async (req, res, next) => {
   try {
     const id = req.params.id;
