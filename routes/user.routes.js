@@ -13,6 +13,16 @@ router.get("/user", async (req, res, next) => {
   }
 });
 
+router.get("/user/:id", async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const userInfo = await User.findById(id);
+    res.status(200).json(userInfo);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Modify user profile
 router.patch("/user", async (req, res, next) => {
   try {
@@ -30,7 +40,7 @@ router.delete("/user", async (req, res, next) => {
   try {
     const id = req.user._id;
     await User.findByIdAndDelete(id);
-    res.status(204)
+    res.status(204);
   } catch (error) {
     next(error);
   }
