@@ -1,32 +1,31 @@
 const { Schema, model } = require(`mongoose`);
 
-
 const eventSchema = new Schema(
   {
-    creator: { type: Schema.Types.ObjectId, ref: 'User' },
+    creator: { type: Schema.Types.ObjectId, ref: "User" },
     title: {
       type: String,
       required: true,
       maxLength: [50, `must not exceed 50 characters in length`],
-      trim: true
+      trim: true,
     },
     location: {
       // follow the api
     },
     startAt: {
-      type: Date
+      type: Date,
     },
     endAt: {
-      type: Date
+      type: Date,
     },
     attendees: {
       minimum: Number,
-      maximum: Number
+      maximum: Number,
     },
     price: {
       type: Number,
       min: 0,
-      default: 0
+      default: 0,
     },
     description: {
       type: String,
@@ -34,15 +33,39 @@ const eventSchema = new Schema(
     },
     type: {
       type: String,
-      enum : ['Art & Culture','Career & Business', 'Sport'],  // ripoff meetup
+      enum: [
+        "Art & Culture",
+        "Writing",
+        "Music",
+        "Dancing",
+
+        "Games",
+        "Pets & Animals",
+        "Language",
+        "Education",
+        "Science",
+        "Technology",
+
+        "Career & Business",
+        "Politics",
+        "Community & envrionment",
+
+        "Parents & Family",
+        "Hobbies & Passions",
+        "Health & wellbeing",
+        "Religion & Spirituality",
+
+        "Sports",
+        "Outdoor",
+      ],
     },
     approvalRequired: {
       type: Boolean,
       default: false,
-    }
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 
