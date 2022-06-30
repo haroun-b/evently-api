@@ -3,10 +3,10 @@ const {
   handleInvalidPasswd
 } = require(`../utils/helpers.function`),
   router = require(`express`).Router(),
-  User = require(`../models/user.model`),
+  User = require(`../models/User.model`),
   bcrypt = require(`bcryptjs`),
-  jwt = require(`jsonwebtoken`),
-  nodemailer = require(`nodemailer`);
+  jwt = require(`jsonwebtoken`);
+
 
 router.post(`/login`, async (req, res, next) => {
   try {

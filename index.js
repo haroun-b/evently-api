@@ -17,12 +17,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // adds routing
-app.use(`/`, require(`./routes/index.router.js`));
+app.use(`/`, require(`./routers/index.router.js`));
 
 
 
 // adds error handling
-app.use(require(`./middleware/error-handling.middleware`));
+app.use(require(`./middleware/errorHandling.middleware`));
 
 
 // starts the server
