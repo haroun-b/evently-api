@@ -3,7 +3,7 @@ const { Schema, model } = require(`mongoose`);
 
 const eventSchema = new Schema(
   {
-    Creator: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    creator: { type: Schema.Types.ObjectId, ref: 'User' },
     title: {
       type: String,
       required: true,
@@ -13,14 +13,20 @@ const eventSchema = new Schema(
     location: {
       // follow the api
     },
-    time: {
+    startAt: {
       type: Date
     },
-    minAttendees: Number,
-    maxAttendees: Number,
+    endAt: {
+      type: Date
+    },
+    attendees: {
+      minimum: Number,
+      maximum: Number
+    },
     price: {
       type: Number,
-      default: 0,
+      min: 0,
+      default: 0
     },
     description: {
       type: String,
