@@ -1,25 +1,31 @@
 {
-  "name": "2up-api",
+  "name": "evently-api",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index",
-    "dev": "nodemon index"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/haroun-b/2up-api.git"
+    "url": "git+https://github.com/haroun-b/evently-api.git"
   },
   "author": "Arthur V. | Haroun B.",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/haroun-b/2up-api/issues"
+    "url": "https://github.com/haroun-b/evently-api/issues"
   },
-  "homepage": "https://github.com/haroun-b/2up-api#readme",
+  "homepage": "https://github.com/haroun-b/evently-api#readme",
   "dependencies": {
-    "mongoose": "^6.4.1"
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.4.1",
+    "morgan": "^1.10.0",
+    "nodemailer": "^6.7.5"
   },
   "devDependencies": {
     "nodemon": "^2.0.18"

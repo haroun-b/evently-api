@@ -1,3 +1,8 @@
+const User = require(`../models/user.model`),
+  jwt = require(`jsonwebtoken`),
+  nodemailer = require(`nodemailer`);
+
+
 function notFound(req, res, next) {
   // runs whenever the requested resource is not found
   res.status(404)
@@ -8,14 +13,42 @@ function notFound(req, res, next) {
     });
 };
 
-function internalError(err, req, res, next) {
+async function internalError(err, req, res, next) {
   console.error("ERROR", req.method, req.path, err);
 
   if (err.name.includes(`Token`)) {
     let authentication = ``;
 
     if (err.message.includes(`jwt expired`)) {
-      authentication = `Expired token. Please login to continue`;
+      if (err.unverifiedUser) {
+        const foundUser = await User.findOne({ email: unverifiedUser });
+        if (foundUser) {
+          const verifToken = jwt.sign({ userId: foundUser.id }, process.env.TOKEN_SECRET, {
+            algorithm: `HS256`,
+            expiresIn: `15m`,
+          });
+
+          const transporter = nodemailer.createTransport({
+            service: 'Gmail',
+            auth: {
+              user: process.env.EMAIL_USERNAME,
+              pass: process.env.EMAIL_PASSWORD
+            }
+          });
+
+          // use .env for the from field
+          const emailResMsg = await transporter.sendMail({
+            from: `'Evently ' <${process.env.EMAIL_USERNAME}>`,
+            to: foundUser.email,
+            subject: 'Email Verification',
+            text: `${process.env.BASE_URL}/verify/?email=${foundUser.email}&token=${verifToken}`
+          });
+
+          console.log(emailResMsg);
+        }
+      }
+
+      authentication = `Expired token`;
     } else {
       authentication = `Invalid token`;
     }

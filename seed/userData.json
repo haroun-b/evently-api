@@ -1,0 +1,72 @@
+[
+  {
+    "name": "Test1",
+    "password": "Test1234567",
+    "email": "test1@mail.com",
+    "isVerified": true,
+    "bio": "Test1Bio"
+  },
+  {
+    "name": "Test2",
+    "password": "Test1234567",
+    "email": "test2@mail.com",
+    "isVerified": true,
+    "bio": "Test2Bio"
+  },
+  {
+    "name": "Test3",
+    "password": "Test1234567",
+    "email": "test3@mail.com",
+    "isVerified": true,
+    "bio": "Test3Bio"
+  },
+  {
+    "name": "Test4",
+    "password": "Test1234567",
+    "email": "test4@mail.com",
+    "isVerified": true,
+    "bio": "Test4Bio"
+  },
+  {
+    "name": "Test5",
+    "password": "Test1234567",
+    "email": "test5@mail.com",
+    "isVerified": true,
+    "bio": "Test5Bio"
+  },
+  {
+    "name": "Test6",
+    "password": "Test1234567",
+    "email": "test6@mail.com",
+    "isVerified": true,
+    "bio": "Test6Bio"
+  },
+  {
+    "name": "Test7",
+    "password": "Test1234567",
+    "email": "test7@mail.com",
+    "isVerified": true,
+    "bio": "Test7Bio"
+  },
+  {
+    "name": "Test8",
+    "password": "Test1234567",
+    "email": "test8@mail.com",
+    "isVerified": true,
+    "bio": "Test8Bio"
+  },
+  {
+    "name": "Test9",
+    "password": "Test1234567",
+    "email": "test9@mail.com",
+    "isVerified": true,
+    "bio": "Test9Bio"
+  },
+  {
+    "name": "Test10",
+    "password": "Test1234567",
+    "email": "test10@mail.com",
+    "isVerified": true,
+    "bio": "Test10Bio"
+  }
+]
