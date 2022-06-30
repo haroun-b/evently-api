@@ -1,6 +1,5 @@
-const jwt = require('jsonwebtoken'),
-  User = require('../models/User.model');
-
+const jwt = require("jsonwebtoken"),
+  User = require("../models/User.model");
 
 async function auth(req, res, next) {
   try {
@@ -11,11 +10,10 @@ async function auth(req, res, next) {
     if (authorization) {
       // isolates the jwt
       const token = authorization.split(` `)[1];
-      console.log(token)
 
       // verify the jwt with the jsonwebtoken package
       const { userId } = jwt.verify(token, process.env.TOKEN_SECRET);
-      const foundUser = await User.findById(userId, {password: 0, __v: 0});
+      const foundUser = await User.findById(userId, { password: 0, __v: 0 });
 
       if (foundUser) {
         req.user = foundUser;
@@ -27,6 +25,5 @@ async function auth(req, res, next) {
     next(err);
   }
 }
-
 
 module.exports = auth;
