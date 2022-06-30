@@ -1,5 +1,5 @@
 const router = require(`express`).Router(),
-  User = require(`../models/user.model`),
+  User = require(`../models/User.model`),
   jwt = require(`jsonwebtoken`),
   nodemailer = require(`nodemailer`);
 

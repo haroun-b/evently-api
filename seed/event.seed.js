@@ -1,15 +1,10 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs")
 require("dotenv/config");
 
 const MONGO_URI = process.env.MONGODB_URI || `mongodb://127.0.0.1/evently`;
 
-const User = require("../models/user.model");
-const userData = require("./userData.json");
-
-userData.forEach(user => {
-  user.password = bcrypt.hashSync(user.password, 10)
-});
+const Event = require("../models/Event.model");
+const eventData = require("./eventData.seed.json");
 
 async function seed() {
   try {
@@ -18,9 +13,9 @@ async function seed() {
     console.log(
       `Connected to Mongo! Database name: "${databaseInfo.connections[0].name}"`
     );
-    await User.deleteMany();
-    const usersCreated = await User.create(userData);
-    console.log(`Created ${usersCreated.length} users`);
+    await Event.deleteMany();
+    const eventsCreated = await Event.create(eventData);
+    console.log(`Created ${eventsCreated.length} events`);
     mongoose.disconnect();
   } catch (err) {
     console.log(err);
