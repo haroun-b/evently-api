@@ -1,10 +1,15 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs")
 require("dotenv/config");
 
 const MONGO_URI = process.env.MONGODB_URI || `mongodb://127.0.0.1/evently`;
 
 const User = require("../models/user.model");
 const userData = require("./userData.json");
+
+userData.forEach(user => {
+  user.password = bcrypt.hashSync(user.password, 10)
+});
 
 async function seed() {
   try {
