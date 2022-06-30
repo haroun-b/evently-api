@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const User = require("../models/User.model");
-const isIdValid = require("../middleware/idValidation.middleware");
+const validateId = require("../middleware/idValidation.middleware");
 const { handleNotExist } = require("../utils/helpers.function");
 
 router.use(require("../middleware/auth.middleware"));
@@ -17,7 +17,7 @@ router.get("/", async (req, res, next) => {
 });
 
 // Get other user info
-router.get("/:id", isIdValid, async (req, res, next) => {
+router.get("/:id", validateId, async (req, res, next) => {
   try {
     const id = req.params.id;
     const userInfo = await User.findById(id);

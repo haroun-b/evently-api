@@ -17,5 +17,6 @@ router.use("/signup", require("./signup.router"));
 router.use("/login", require("./login.router"));
 router.use("/verify", require("./verifyEmail.router"));
 router.use("/user", require("./user.router"));
+router.use("/event", require("./event.router"));
 
 module.exports = router;

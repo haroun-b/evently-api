@@ -10,7 +10,11 @@ const eventSchema = new Schema(
       trim: true,
     },
     location: {
-      // follow the api
+      address: String,
+      coordinates: {
+        lat: Number,
+        long: Number,
+      },
     },
     startAt: {
       type: Date,
