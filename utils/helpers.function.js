@@ -14,11 +14,11 @@ function handleInvalidId(id, res) {
     });
 }
 
-function isValidPasswd(password) {
-  return typeof password === `string` && password.length > 7;
+function isValidPassword(password) {
+  return typeof password === 'string' && password.length > 7;
 }
 
-function handleInvalidPasswd(res) {
+function handleInvalidPassword(res) {
   res.status(400)
     .json({
       errors: {
@@ -39,7 +39,7 @@ function handleNotExist(key, value, res) {
 module.exports = {
   isValidId,
   handleInvalidId,
-  isValidPasswd,
-  handleInvalidPasswd,
+  isValidPassword,
+  handleInvalidPassword,
   handleNotExist,
 }

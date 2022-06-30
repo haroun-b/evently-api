@@ -3,22 +3,20 @@ const router = require(`express`).Router(),
   jwt = require(`jsonwebtoken`),
   nodemailer = require(`nodemailer`);
 
-router.get(`/verify`, async (req, res, next) => {
+router.get(`/`, async (req, res, next) => {
   try {
     const verifToken = req.query.token;
 
     if (!verifToken) {
-      res.status(400)
-        .json({
-          errors: {
-            verifToken: `Verification token missing`
-          }
-        });
+      res.status(400).json({
+        errors: {
+          verifToken: `Verification token missing`,
+        },
+      });
       return;
     }
 
     const { userId } = jwt.verify(verifToken, process.env.TOKEN_SECRET);
-
 
     const foundUser = await User.findByIdAndUpdate(
       userId,
@@ -32,19 +30,19 @@ router.get(`/verify`, async (req, res, next) => {
     }
 
     const transporter = nodemailer.createTransport({
-      service: 'Gmail',
+      service: "Gmail",
       auth: {
         user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD
-      }
+        pass: process.env.EMAIL_PASSWORD,
+      },
     });
 
     // use .env for the from field
     const emailResMsg = await transporter.sendMail({
       from: `'Evently ' <${process.env.EMAIL_USERNAME}>`,
       to: foundUser.email,
-      subject: 'Email Verification',
-      text: `You are now a verified user!`
+      subject: "Email Verification",
+      text: `You are now a verified user!`,
     });
 
     console.log(emailResMsg);
@@ -55,3 +53,5 @@ router.get(`/verify`, async (req, res, next) => {
     next(err);
   }
 });
+
+module.exports = router;

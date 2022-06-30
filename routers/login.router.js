@@ -1,6 +1,6 @@
 const {
-  isValidPasswd,
-  handleInvalidPasswd
+  isValidPassword,
+  handleInvalidPassword
 } = require(`../utils/helpers.function`),
   router = require(`express`).Router(),
   User = require(`../models/User.model`),
@@ -8,12 +8,12 @@ const {
   jwt = require(`jsonwebtoken`);
 
 
-router.post(`/login`, async (req, res, next) => {
+router.post(`/`, async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    if (!isValidPasswd(password)) {
-      handleInvalidPasswd(res, next);
+    if (!isValidPassword(password)) {
+      handleInvalidPassword(res, next);
       return;
     }
 

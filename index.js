@@ -1,29 +1,26 @@
 const express = require(`express`),
   app = express(),
-  logger = require('morgan');
-
+  logger = require("morgan");
 
 // provides access to environment variables/settings
-require('dotenv/config');
+require("dotenv/config");
 
 // connects to the database
-require('./db/connect')();
+require("./db/connect")();
 
 // provides logging in the development environment
-app.use(logger('dev'));
+app.use(logger("dev"));
 
 // provides access to the `body` property in the request
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// adds routing
-app.use(`/`, require(`./routers/index.router.js`));
-
-
+// 👇 Start handling routes here
+// All routes are controlled from the routers/index.router.js
+app.use(`/`, require(`./routers/index.router`));
 
 // adds error handling
 app.use(require(`./middleware/errorHandling.middleware`));
-
 
 // starts the server
 const PORT = process.env.PORT || 3000;
