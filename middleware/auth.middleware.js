@@ -11,10 +11,11 @@ async function auth(req, res, next) {
     if (authorization) {
       // isolates the jwt
       const token = authorization.split(` `)[1];
+      console.log(token)
 
       // verify the jwt with the jsonwebtoken package
-      const { id } = jwt.verify(token, process.env.TOKEN_SECRET);
-      const foundUser = await User.findById(id, {password: 0, __v: 0});
+      const { userId } = jwt.verify(token, process.env.TOKEN_SECRET);
+      const foundUser = await User.findById(userId, {password: 0, __v: 0});
 
       if (foundUser) {
         req.user = foundUser;

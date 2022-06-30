@@ -1,11 +1,13 @@
 const router = require("express").Router();
-// const isAuthenticated = require("../middleware/isAuthenticated");
 const User = require("../models/User.model");
 
+
+router.use(require("../middleware/auth.middleware"));
+
 // Get my user info
-router.get("/user", async (req, res, next) => {
+router.get("/", async (req, res, next) => {
   try {
-    const id = req.user._id;
+    const id = req.user.id;
     const userInfo = await User.findById(id);
     res.status(200).json(userInfo);
   } catch (error) {
@@ -14,7 +16,7 @@ router.get("/user", async (req, res, next) => {
 });
 
 // Get other user info
-router.get("/user/:id", async (req, res, next) => {
+router.get("/:id", async (req, res, next) => {
   try {
     const id = req.params.id;
     const userInfo = await User.findById(id);
@@ -25,9 +27,9 @@ router.get("/user/:id", async (req, res, next) => {
 });
 
 // Modify user profile
-router.patch("/user", async (req, res, next) => {
+router.patch("/", async (req, res, next) => {
   try {
-    const id = req.user._id;
+    const id = req.user.id;
     const update = req.body;
     const updatedUser = await User.findByIdAndUpdate(id, update);
     res.status(200).json(updatedUser);
@@ -37,9 +39,9 @@ router.patch("/user", async (req, res, next) => {
 });
 
 // Delete user profile
-router.delete("/user", async (req, res, next) => {
+router.delete("/", async (req, res, next) => {
   try {
-    const id = req.user._id;
+    const id = req.user.id;
     await User.findByIdAndDelete(id);
     res.status(204);
   } catch (error) {
