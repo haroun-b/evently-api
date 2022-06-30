@@ -1,0 +1,9 @@
+[
+  {
+    "creator": "Test1",
+    "password": "123",
+    "email": "test1@mail.com",
+    "isVerified": true,
+    "bio": "Test1Bio"
+  }
+]
