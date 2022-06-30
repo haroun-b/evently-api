@@ -16,6 +16,7 @@ router.get(`/`, (req, res, next) => {
 router.use("/signup", require("./signup.router"));
 router.use("/login", require("./login.router"));
 router.use("/verify", require("./verifyEmail.router"));
+router.use(`/reset-password`, require(`./resetPassword.router`));
 router.use("/user", require("./user.router"));
 
 module.exports = router;
