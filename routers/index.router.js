@@ -19,5 +19,6 @@ router.use("/verify", require("./verifyEmail.router"));
 router.use(`/reset-password`, require(`./resetPassword.router`));
 router.use("/user", require("./user.router"));
 router.use("/event", require("./event.router"));
+router.use("/request", require("./attendanceRequest.router"));
 
 module.exports = router;

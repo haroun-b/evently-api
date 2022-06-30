@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const Event = require("../models/Event.model");
+const AttendanceRequest = require("../models/AttendanceRequest.model");
 // const User = require("../models/User.model");
 // const isIdValid = require("../middleware/idValidation.middleware");
 // const { handleNotExist } = require("../utils/helpers.function");
@@ -33,7 +34,7 @@ router.post("/", async (req, res, next) => {
       type,
       approvalRequired,
     });
-    res.status(200).json(createdEvent);
+    res.status(201).json(createdEvent);
   } catch (error) {
     next(error);
   }
