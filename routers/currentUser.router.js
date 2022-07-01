@@ -3,9 +3,15 @@ const User = require("../models/User.model");
 const validateId = require("../middleware/idValidation.middleware");
 const { handleNotExist } = require("../utils/helpers.function");
 
-router.use(require("../middleware/auth.middleware"));
 
-// Get my user info
+// ==========================================================
+// access restricted to authenticated users only
+// ==========================================================
+router.use(require("../middleware/auth.middleware"));
+router.use(require(`../middleware/accessRestricting.middleware`));
+// ==========================================================
+
+// get the current user's profile
 router.get("/", async (req, res, next) => {
   try {
     const id = req.user.id;
@@ -16,22 +22,7 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-// Get other user info
-router.get("/:id", validateId, async (req, res, next) => {
-  try {
-    const id = req.params.id;
-    const userInfo = await User.findById(id);
-    if (!userInfo) {
-      handleNotExist("userId", id, res);
-      return;
-    }
-    res.status(200).json(userInfo);
-  } catch (error) {
-    next(error);
-  }
-});
-
-// Modify user profile
+// edit the current user's profile
 router.patch("/", async (req, res, next) => {
   try {
     const id = req.user.id;
@@ -48,7 +39,7 @@ router.patch("/", async (req, res, next) => {
   }
 });
 
-// Delete user profile
+// delete the current user's profile
 router.delete("/", async (req, res, next) => {
   try {
     const id = req.user.id;
@@ -58,5 +49,15 @@ router.delete("/", async (req, res, next) => {
     next(error);
   }
 });
+
+// get all events for the current user
+router.get(`/events`, async (req, res, next) => {
+  try {
+
+  } catch (err) {
+    next(err);
+  }
+});
+
 
 module.exports = router;

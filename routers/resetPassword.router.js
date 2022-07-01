@@ -8,6 +8,7 @@ const {
   jwt = require(`jsonwebtoken`),
   nodemailer = require(`nodemailer`);
 
+  
 router.patch(`/`, async (req, res, next) => {
   try {
     const { email, password } = req.body;
