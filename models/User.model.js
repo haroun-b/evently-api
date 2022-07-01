@@ -3,10 +3,12 @@ const { Schema, model } = require(`mongoose`);
 
 const userSchema = new Schema(
   {
-    name: {
+    username: {
       type: String,
+      unique: true,
       required: true,
-      maxLength: [50, `must not exceed 50 characters in length`],
+      maxLength: [20, `must not exceed 20 characters in length`],
+      lowercase: true,
       trim: true
     },
     password: {
@@ -33,20 +35,26 @@ const userSchema = new Schema(
         message: email => `${email.value} is not a valid email`
       }
     },
-    imageUrl: {
+    name: {
       type: String,
-      dafault: 'Blablabla'
-    },
-    isVerified: {
-      type: Boolean,
-      default: false
+      required: true,
+      maxLength: [50, `must not exceed 50 characters in length`],
+      trim: true
     },
     bio: {
       type: String,
       maxLength: [300, `must not exceed 300 characters in length`],
       trim: true
     },
+    imageUrl: {
+      type: String,
+      dafault: 'Blablabla'
+    },
     badges: [{ type: Schema.Types.ObjectId, ref: 'Badge' }],
+    isVerified: {
+      type: Boolean,
+      default: false
+    },
   },
   {
     timestamps: true
