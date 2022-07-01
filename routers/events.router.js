@@ -17,7 +17,17 @@ router.get(`/`, async (req, res, next) => {
 // get event by id
 router.get(`/:eventId`, async (req, res, next) => {
   try {
+    const { eventId } = req.params;
 
+    const foundEvent = await Event.findById(eventId)
+    .populate({ path: `creator`, select: { password: 0, email: 0, __v: 0 } });
+
+    if (!foundEvent) {
+      handleNotExist(`event`, eventId, res);
+      return;
+    }
+
+    res.status(200).json(foundEvent);
   } catch (err) {
     next(err);
   }
