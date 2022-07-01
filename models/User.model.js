@@ -37,7 +37,6 @@ const userSchema = new Schema(
     },
     name: {
       type: String,
-      required: true,
       maxLength: [50, `must not exceed 50 characters in length`],
       trim: true
     },
