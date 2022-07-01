@@ -63,6 +63,10 @@ const eventSchema = new Schema(
         "Outdoor",
       ],
     },
+    imageUrl: {
+      type: String,
+      dafault: "Blablabla",
+    },
     approvalRequired: {
       type: Boolean,
       default: false,
