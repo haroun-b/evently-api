@@ -17,7 +17,14 @@ router.use("/signup", require("./signup.router"));
 router.use("/login", require("./login.router"));
 router.use("/verify", require("./verifyEmail.router"));
 router.use(`/reset-password`, require(`./resetPassword.router`));
-router.use("/user", require("./user.router"));
-router.use("/event", require("./event.router"));
+
+router.use("/events", require("./events.router"));
+router.use("/events/:eventId/attendees", require("./attendees.router"));
+router.use("/events/:eventId/messages", require("./messages.router"));
+
+router.use(`/me`, require(`./currentUser.router`));
+
+router.use("/users", require("./users.router"));
+
 
 module.exports = router;

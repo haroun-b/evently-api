@@ -4,9 +4,34 @@ const Event = require("../models/Event.model");
 // const isIdValid = require("../middleware/idValidation.middleware");
 // const { handleNotExist } = require("../utils/helpers.function");
 
-router.use(require("../middleware/auth.middleware"));
 
-// Create event
+// get events based on filter values
+router.get(`/`, async (req, res, next) => {
+  try {
+    
+  } catch (err) {
+    next(err);
+  }
+});
+
+// get event by id
+router.get(`/:eventId`, async (req, res, next) => {
+  try {
+
+  } catch (err) {
+    next(err);
+  }
+});
+
+
+// ==========================================================
+// access restricted to authenticated users only
+// ==========================================================
+router.use(require("../middleware/auth.middleware"));
+router.use(require(`../middleware/accessRestricting.middleware`));
+// ==========================================================
+
+// create event
 router.post("/", async (req, res, next) => {
   try {
     const id = req.user.id;
@@ -38,5 +63,24 @@ router.post("/", async (req, res, next) => {
     next(error);
   }
 });
+
+// edit event by id
+router.patch(`/:eventId`, async (req, res, next) => {
+  try {
+
+  } catch (err) {
+    next(err);
+  }
+});
+
+// delete event by id
+router.delete(`/:eventId`, async (req, res, next) => {
+  try {
+
+  } catch (err) {
+    next(err);
+  }
+});
+
 
 module.exports = router;

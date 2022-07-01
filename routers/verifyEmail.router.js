@@ -3,6 +3,7 @@ const router = require(`express`).Router(),
   jwt = require(`jsonwebtoken`),
   nodemailer = require(`nodemailer`);
 
+
 router.get(`/`, async (req, res, next) => {
   try {
     const verifToken = req.query.token;
@@ -53,5 +54,6 @@ router.get(`/`, async (req, res, next) => {
     next(err);
   }
 });
+
 
 module.exports = router;

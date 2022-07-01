@@ -8,6 +8,7 @@ const {
   jwt = require(`jsonwebtoken`),
   nodemailer = require(`nodemailer`);
 
+  
 router.post("/", async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
@@ -48,7 +49,7 @@ router.post("/", async (req, res, next) => {
       from: `'Evently ' <${process.env.EMAIL_USERNAME}>`,
       to: createdUser.email,
       subject: "Email Verification",
-      text: `${process.env.BASE_URL}/verify/?email=${createdUser.email}&token=${verifToken}`,
+      text: `${process.env.BASE_URL}/verify?email=${createdUser.email}&token=${verifToken}`,
     });
 
     console.log(emailResMsg);
@@ -58,5 +59,6 @@ router.post("/", async (req, res, next) => {
     next(err);
   }
 });
+
 
 module.exports = router;
