@@ -1,6 +1,7 @@
 const {
   isValidPassword,
-  handleInvalidPassword
+  handleInvalidPassword,
+  handleNotExist
 } = require(`../utils/helpers.function`),
   router = require(`express`).Router(),
   User = require(`../models/User.model`),
@@ -10,14 +11,15 @@ const {
 
 router.post(`/`, async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { username, email, password } = req.body;
 
     if (!isValidPassword(password)) {
       handleInvalidPassword(res, next);
       return;
     }
 
-    const foundUser = await User.findOne({ email });
+    const searchQuery = username ? {username} : {email};
+    const foundUser = await User.findOne(searchQuery);
     if (!foundUser) {
       handleNotExist(`email`, email, res);
       return;
