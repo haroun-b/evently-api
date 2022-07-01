@@ -67,7 +67,15 @@ router.post(`/`, async (req, res, next) => {
 // delete attendance request for an event by event id
 router.delete(`/`, async (req, res, next) => {
   try {
+    const userId = req.user.id;
+    const { eventId } = req.params;
 
+    await AttendanceRequest.findOneAndDelete(
+      { user: req.user.id },
+      { event: eventId }
+    );
+    
+    res.sendStatus(204);
   } catch (err) {
     next(err);
   }
