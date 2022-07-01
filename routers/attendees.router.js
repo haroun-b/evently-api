@@ -5,7 +5,7 @@ const { handleNotExist } = require("../utils/helpers.function");
 
 
 // get all attendees for one event by event id
-router.get(`/`, async (req, res, next) => {
+router.get(`/:eventId/attendees`, async (req, res, next) => {
   try {
 
   } catch (err) {
@@ -22,13 +22,13 @@ router.use(require(`../middleware/accessRestricting.middleware`));
 // ==========================================================
 
 // send an attendance request for an event by event id
-router.post(`/`, async (req, res, next) => {
+router.post(`/:eventId/attendees`, async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const { eventId } = req.params;
+    const eventId = req.params;
 
     const foundAttendanceRequest = await AttendanceRequest.findOne(
-      { user: req.user.id },
+      { user: userId },
       { event: eventId }
     );
 
@@ -65,7 +65,7 @@ router.post(`/`, async (req, res, next) => {
 });
 
 // delete attendance request for an event by event id
-router.delete(`/`, async (req, res, next) => {
+router.delete(`/:eventId/attendees`, async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { eventId } = req.params;
@@ -82,7 +82,7 @@ router.delete(`/`, async (req, res, next) => {
 });
 
 // approve or reject an attendance request by event id and request id
-router.patch(`/:requestId`, async (req, res, next) => {
+router.patch(`/:eventId/attendees/:requestId`, async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { eventId, requestId } = req.params;
