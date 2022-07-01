@@ -71,7 +71,7 @@ router.delete(`/`, async (req, res, next) => {
     const { eventId } = req.params;
 
     await AttendanceRequest.findOneAndDelete(
-      { user: req.user.id },
+      { user: userId },
       { event: eventId }
     );
 
