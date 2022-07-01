@@ -74,7 +74,7 @@ router.delete(`/`, async (req, res, next) => {
       { user: req.user.id },
       { event: eventId }
     );
-    
+
     res.sendStatus(204);
   } catch (err) {
     next(err);
@@ -84,7 +84,33 @@ router.delete(`/`, async (req, res, next) => {
 // approve or reject an attendance request by event id and request id
 router.patch(`/:requestId`, async (req, res, next) => {
   try {
+    const userId = req.user.id;
+    const { eventId, requestId } = req.params;
+    const { status } = req.body;
 
+    // Check if request exist
+    const foundRequest = AttendanceRequest.findById(requestId);
+    if (!foundRequest) {
+      handleNotExist(`attendaceRequest`, requestId, res);
+      return;
+    }
+
+    // Checking if the user is the creator of the event, so he can modify it
+    // Or if the request exist, in any case we send the same message
+    const foundEvent = await Event.findOne({ _id: eventId, creator: userId });
+    if (!foundEvent) {
+      res.status(403).json({ message: "You are not this event creator" });
+      return;
+    }
+
+    // Update the event status to "approved" of "rejected"
+    const updatedAttendanceRequest = await AttendanceRequest.findByIdAndUpdate(
+      requestId,
+      { status },
+      { runValidators: true, new: true }
+    );
+
+    res.status(200).json(updatedAttendanceRequest);
   } catch (err) {
     next(err);
   }
