@@ -11,7 +11,7 @@ const {
   
 router.post("/", async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const { username, email, password } = req.body;
 
     if (!isValidPassword(password)) {
       handleInvalidPassword(res, next);
@@ -22,7 +22,8 @@ router.post("/", async (req, res, next) => {
       hashedPassword = await bcrypt.hash(password, salt);
 
     const createdUser = await User.create({
-      name,
+      username,
+      name: username,
       email,
       password: hashedPassword,
     });
