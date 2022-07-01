@@ -1,8 +1,8 @@
 const router = require("express").Router();
 const Event = require("../models/Event.model");
+const validateId = require("../middleware/idValidation.middleware");
+const { handleNotExist } = require("../utils/helpers.function");
 // const User = require("../models/User.model");
-// const isIdValid = require("../middleware/idValidation.middleware");
-// const { handleNotExist } = require("../utils/helpers.function");
 
 
 // get events based on filter values
@@ -15,7 +15,7 @@ router.get(`/`, async (req, res, next) => {
 });
 
 // get event by id
-router.get(`/:eventId`, async (req, res, next) => {
+router.get(`/:eventId`, validateId, async (req, res, next) => {
   try {
     const { eventId } = req.params;
 
@@ -75,7 +75,7 @@ router.post("/", async (req, res, next) => {
 });
 
 // edit event by id
-router.patch(`/:eventId`, async (req, res, next) => {
+router.patch(`/:eventId`, validateId, async (req, res, next) => {
   try {
     const { eventId } = req.params;
 
@@ -135,7 +135,7 @@ router.patch(`/:eventId`, async (req, res, next) => {
 });
 
 // delete event by id
-router.delete(`/:eventId`, async (req, res, next) => {
+router.delete(`/:eventId`, validateId, async (req, res, next) => {
   try {
 
   } catch (err) {

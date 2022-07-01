@@ -1,5 +1,7 @@
 const router = require("express").Router();
 const User = require("../models/User.model");
+const Event = require("../models/Event.model");
+const AttendanceRequest = require(`../models/AttendanceRequest.model`);
 const validateId = require("../middleware/idValidation.middleware");
 const { handleNotExist } = require("../utils/helpers.function");
 
@@ -53,7 +55,14 @@ router.delete("/", async (req, res, next) => {
 // get all events for the current user
 router.get(`/events`, async (req, res, next) => {
   try {
+    const { user } = req;
 
+    const createdByUser = await Event.find({ creator: user.id });
+    const attendedByUser = await AttendanceRequest.find({ user: user.id })
+      .populate(`event`);
+
+
+    res.status(200).json({ createdByUser, attendedByUser });
   } catch (err) {
     next(err);
   }
