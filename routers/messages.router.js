@@ -12,7 +12,7 @@ router.use(require(`../middleware/accessRestricting.middleware`));
 // TODO: add middleware to restrict acces to approved attendees
 
 // get all messages for one event by event id
-router.get(`/`, async (req, res, next) => {
+router.get(`/:eventId/messages`, async (req, res, next) => {
   try {
 
   } catch (err) {
@@ -21,7 +21,7 @@ router.get(`/`, async (req, res, next) => {
 });
 
 // send a message for one event by event id
-router.post(`/`, async (req, res, next) => {
+router.post(`/:eventId/messages`, async (req, res, next) => {
   try {
 
   } catch (err) {
@@ -30,7 +30,7 @@ router.post(`/`, async (req, res, next) => {
 });
 
 // edit a message for one event by event id and message id
-router.patch(`/:messageId`, async (req, res, next) => {
+router.patch(`:eventId/messages/:messageId`, async (req, res, next) => {
   try {
 
   } catch (err) {
@@ -39,7 +39,7 @@ router.patch(`/:messageId`, async (req, res, next) => {
 });
 
 // delete a message for one event by event id and message id
-router.delete(`/:messageId`, async (req, res, next) => {
+router.delete(`:eventId/messages/:messageId`, async (req, res, next) => {
   try {
 
   } catch (err) {

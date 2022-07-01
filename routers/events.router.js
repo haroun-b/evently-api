@@ -68,7 +68,7 @@ router.post("/", async (req, res, next) => {
       type,
       approvalRequired,
     });
-    res.status(200).json(createdEvent);
+    res.status(201).json(createdEvent);
   } catch (error) {
     next(error);
   }
