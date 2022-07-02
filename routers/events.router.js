@@ -14,24 +14,29 @@ router.get(`/`, async (req, res, next) => {
     const filterQuery = {};
 
     let {
-      location,
-      searchRadius,
+      longitude,
+      latitude,
+      searchRadius = 5,
       city,
       startAfter,
       endBefore,
       maxPrice,
       type,
-      searchQuery,
+      search,
       requiresApproval,
       isGroupEvent,
       page = 0
-    } = req.body;
+    } = req.query;
+
+    // console.log(req.query)
+    // res.sendStatus(200)
+    // return 
 
 
-    if (!location) {
+    if (!longitude && !latitude) {
 
       if (city) {
-        filterQuery.address = { city };
+        filterQuery["address.city"] = new RegExp(city, `ig`);
 
       } else {
         //use ip address
@@ -39,13 +44,8 @@ router.get(`/`, async (req, res, next) => {
         const ipLocation = geoip.lookup(ip);
 
         if (ipLocation) {
-          const { ll: [latitude, longitude] } = ipLocation;
-          
-          location = {
-            latitude,
-            longitude,
-          };
-          
+          ({ ll: [latitude, longitude] } = ipLocation);
+
           ({ city } = ipLocation);
         }
 
@@ -53,24 +53,25 @@ router.get(`/`, async (req, res, next) => {
     }
 
 
-    if (location) {
+    if (longitude && latitude) {
       filterQuery.location = {
         $geoWithin: {
           $centerSphere: [
-            [location.longitude, location.latitude],
+            [longitude, latitude],
             searchRadius / 6378
           ]
         }
       }
     }
 
+    // TODO: handle date related errors
 
     if (startAfter) {
-      filterQuery.startAt = { $gte: ISODate(startAfter.toISOString()) };
+      filterQuery.startAt = { $gte: Date.parse(startAfter) };
     }
 
     if (endBefore) {
-      filterQuery.endAt = { $lte: ISODate(endBefore.toISOString()) };
+      filterQuery.endAt = { $lte: Date.parse(endBefore) };
     }
 
     if (maxPrice) {
@@ -82,37 +83,46 @@ router.get(`/`, async (req, res, next) => {
     }
 
     if (requiresApproval !== undefined) {
-      filterQuery.approvalRequired = requiresApproval ? true : false;
+      filterQuery.approvalRequired = requiresApproval === `true` ? true : false;
     }
 
     if (isGroupEvent !== undefined) {
-      filterQuery.attendees.maximum = { $or: [{ $gt: 1 }, { $exists: false }] };
+      if (isGroupEvent === `true`) {
+        filterQuery.$or = [
+          { "attendees.maximum": { $gt: 1 } },
+          { "attendees.maximum": { $exists: false } }
+        ]
+      } else {
+        filterQuery["attendees.maximum"] = 1;
+      }
     }
 
-    if (searchQuery) {
+    if (search) {
       filterQuery.$or = [
-        { title: new RegExp(searchQuery, `ig`) },
-        { description: new RegExp(searchQuery, `ig`) }
+        { title: new RegExp(search, `ig`) },
+        { description: new RegExp(search, `ig`) }
       ]
     }
 
 
+    console.log({ filterQuery })
     let filteredEvents = await Event.find(
       filterQuery,
       {},
-      { sort: { startAt: 1 } },
-      { skip: page * 20 },
-      { limit: 20 }
+      { sort: { startAt: 1 }, skip: page * 2, limit: 2 }
     )
       .populate({
         path: `creator`,
         select: { password: 0, email: 0, __v: 0 }
       });
 
-      // an array of promises when resolved becomes a nested array where every sub-array has all the approved attendees for the event with the same index in filteredEvents
-    const allEventsAttendeesPromises = filteredEvents.forEach(evnt => {
-      return AttendanceRequest.find({ event: evnt.id }, { status: `approved` });
+    // an array of promises when resolved becomes a nested array where every sub-array has all the approved attendees for the event with the same index in filteredEvents
+    const allEventsAttendeesPromises = []
+
+    filteredEvents.map(evnt => {
+      allEventsAttendeesPromises.push(AttendanceRequest.find({ event: evnt.id }, { status: `approved` }));
     });
+
 
     const allEventsApprovedAttendees = await Promise.all(allEventsAttendeesPromises);
 
@@ -120,7 +130,7 @@ router.get(`/`, async (req, res, next) => {
       evnt.attendees.approved = allEventsApprovedAttendees[i];
     });
 
-    res.status(200).json({city, events: filteredEvents});
+    res.status(200).json({ city, events: filteredEvents });
   } catch (err) {
     next(err);
   }
@@ -159,6 +169,7 @@ router.post("/", async (req, res, next) => {
     const id = req.user.id;
     let {
       title,
+      address,
       location,
       startAt,
       endAt,
@@ -172,6 +183,7 @@ router.post("/", async (req, res, next) => {
     const createdEvent = await Event.create({
       creator: id,
       title,
+      address,
       location,
       startAt,
       endAt,

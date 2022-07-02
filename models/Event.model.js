@@ -11,13 +11,14 @@ const eventSchema = new Schema(
     },
     address: {
       city: String,
+      postcode: String,
       street: String
     },
     location: {
       type: {
         type: String,
         enum: ['Point'],
-        required: true
+        default: 'Point'
       },
       coordinates: {
         type: [Number],
