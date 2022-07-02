@@ -23,8 +23,15 @@ const eventSchema = new Schema(
       type: Date,
     },
     attendees: {
-      minimum: Number,
-      maximum: Number,
+      minimum: {
+        type: Number,
+        min: 1,
+        default: 1
+      },
+      maximum: {
+        type: Number,
+        min: 1,
+      }
     },
     price: {
       type: Number,

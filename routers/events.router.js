@@ -2,13 +2,97 @@ const router = require("express").Router();
 const Event = require("../models/Event.model");
 const validateId = require("../middleware/idValidation.middleware");
 const { handleNotExist } = require("../utils/helpers.function");
+const AttendanceRequest = require("../models/AttendanceRequest.model");
 // const User = require("../models/User.model");
 
 
 // get events based on filter values
 router.get(`/`, async (req, res, next) => {
   try {
+    const filterQuery = {};
 
+    let {
+      location,
+      address: { city, street },
+      startAfter,
+      endsBefore,
+      maxPrice,
+      type,
+      searchQuery,
+      requiresApproval,
+      isGroupEvent,
+      page
+    } = req.body;
+
+    // street overwrites location
+    if (street) {
+      // lookup address
+    }
+
+    if (location) {
+
+    } else if (city) {
+
+    } else {
+      //use ip address
+    }
+
+    if (startAfter) {
+      filterQuery.startAt = { "$gte": ISODate(startAfter.toISOString()) };
+    }
+
+    if (endsBefore) {
+      filterQuery.endAt = { "$lte": ISODate(endsBefore.toISOString()) };
+    }
+
+    if (maxPrice) {
+      filterQuery.price = { "$lte": maxPrice };
+    }
+
+    if (type) {
+      filterQuery.type = type;
+    }
+
+    if (requiresApproval !== undefined) {
+      filterQuery.approvalRequired = requiresApproval ? true : false;
+    }
+
+    if (isGroupEvent !== undefined) {
+      filterQuery.attendees.maximum = { $or: [{ $gt: 1 }, { $exists: false }] };
+    }
+
+    if (searchQuery) {
+      filterQuery["$or"] = [
+        { title: new RegExp(searchQuery, `ig`) },
+        { title: new RegExp(searchQuery, `ig`) }
+      ]
+    }
+
+    if (!page) {
+      page = 0;
+    }
+
+
+    //mongo query
+    const filteredEvents = await Event.find(
+      filterQuery,
+      {},
+      {sort: {startAt: 1}},
+      {skip: page * 20},
+      {limit: 20}
+      )
+      .populate({
+        path: `creator`,
+        select: { password: 0, email: 0, __v: 0 }
+      });
+
+    const allEventsAttendeesPromises = filteredEvents.map(evnt => {
+      return AttendanceRequest.find({event: evnt.id}, {status: `approved`});
+    });
+
+    const allEventsApprovedAttendees = await Promise.all(allEventsAttendeesPromises);
+
+    
   } catch (err) {
     next(err);
   }
@@ -20,7 +104,7 @@ router.get(`/:eventId`, validateId, async (req, res, next) => {
     const { eventId } = req.params;
 
     const foundEvent = await Event.findById(eventId)
-    .populate({ path: `creator`, select: { password: 0, email: 0, __v: 0 } });
+      .populate({ path: `creator`, select: { password: 0, email: 0, __v: 0 } });
 
     if (!foundEvent) {
       handleNotExist(`event`, eventId, res);

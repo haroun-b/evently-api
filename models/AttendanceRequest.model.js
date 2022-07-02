@@ -5,8 +5,8 @@ const attendanceRequestSchema = new Schema(
     user: { type: Schema.Types.ObjectId, ref: "User" },
     status: {
       type: String,
-      enum: ["Pending", "Approved", "Rejected"],
-      default: "Pending",
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
     },
     event: { type: Schema.Types.ObjectId, ref: "Event" },
   },
