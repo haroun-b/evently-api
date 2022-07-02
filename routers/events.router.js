@@ -4,6 +4,8 @@ const validateId = require("../middleware/idValidation.middleware");
 const { handleNotExist } = require("../utils/helpers.function");
 const AttendanceRequest = require("../models/AttendanceRequest.model");
 // const User = require("../models/User.model");
+const requestIp = require('request-ip');
+const geoip = require("geoip-lite");
 
 
 // get events based on filter values
@@ -13,40 +15,66 @@ router.get(`/`, async (req, res, next) => {
 
     let {
       location,
-      address: { city, street },
+      searchRadius,
+      city,
       startAfter,
-      endsBefore,
+      endBefore,
       maxPrice,
       type,
       searchQuery,
       requiresApproval,
       isGroupEvent,
-      page
+      page = 0
     } = req.body;
 
-    // street overwrites location
-    if (street) {
-      // lookup address
+
+    if (!location) {
+
+      if (city) {
+        filterQuery.address = { city };
+
+      } else {
+        //use ip address
+        const ip = requestIp.getClientIp(req);
+        const ipLocation = geoip.lookup(ip);
+
+        if (ipLocation) {
+          const { ll: [latitude, longitude] } = ipLocation;
+          
+          location = {
+            latitude,
+            longitude,
+          };
+          
+          ({ city } = ipLocation);
+        }
+
+      }
     }
+
 
     if (location) {
-
-    } else if (city) {
-
-    } else {
-      //use ip address
+      filterQuery.location = {
+        $geoWithin: {
+          $centerSphere: [
+            [location.longitude, location.latitude],
+            searchRadius / 6378
+          ]
+        }
+      }
     }
+
 
     if (startAfter) {
-      filterQuery.startAt = { "$gte": ISODate(startAfter.toISOString()) };
+      filterQuery.startAt = { $gte: ISODate(startAfter.toISOString()) };
     }
 
-    if (endsBefore) {
-      filterQuery.endAt = { "$lte": ISODate(endsBefore.toISOString()) };
+    if (endBefore) {
+      filterQuery.endAt = { $lte: ISODate(endBefore.toISOString()) };
     }
 
     if (maxPrice) {
-      filterQuery.price = { "$lte": maxPrice };
+      filterQuery.price = { $lte: maxPrice };
     }
 
     if (type) {
@@ -62,40 +90,37 @@ router.get(`/`, async (req, res, next) => {
     }
 
     if (searchQuery) {
-      filterQuery["$or"] = [
+      filterQuery.$or = [
         { title: new RegExp(searchQuery, `ig`) },
-        { title: new RegExp(searchQuery, `ig`) }
+        { description: new RegExp(searchQuery, `ig`) }
       ]
-    }
-
-    if (!page) {
-      page = 0;
     }
 
 
     let filteredEvents = await Event.find(
       filterQuery,
       {},
-      {sort: {startAt: 1}},
-      {skip: page * 20},
-      {limit: 20}
-      )
+      { sort: { startAt: 1 } },
+      { skip: page * 20 },
+      { limit: 20 }
+    )
       .populate({
         path: `creator`,
         select: { password: 0, email: 0, __v: 0 }
       });
 
-    const allEventsAttendeesPromises = filteredEvents.map(evnt => {
-      return AttendanceRequest.find({event: evnt.id}, {status: `approved`});
+      // an array of promises when resolved becomes a nested array where every sub-array has all the approved attendees for the event with the same index in filteredEvents
+    const allEventsAttendeesPromises = filteredEvents.forEach(evnt => {
+      return AttendanceRequest.find({ event: evnt.id }, { status: `approved` });
     });
 
     const allEventsApprovedAttendees = await Promise.all(allEventsAttendeesPromises);
 
-    filteredEvents = filteredEvents.map((evnt, i) => {
+    filteredEvents.forEach((evnt, i) => {
       evnt.attendees.approved = allEventsApprovedAttendees[i];
     });
 
-    res.status(200).json(filteredEvents);
+    res.status(200).json({city, events: filteredEvents});
   } catch (err) {
     next(err);
   }
