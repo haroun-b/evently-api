@@ -73,8 +73,7 @@ router.get(`/`, async (req, res, next) => {
     }
 
 
-    //mongo query
-    const filteredEvents = await Event.find(
+    let filteredEvents = await Event.find(
       filterQuery,
       {},
       {sort: {startAt: 1}},
@@ -92,7 +91,11 @@ router.get(`/`, async (req, res, next) => {
 
     const allEventsApprovedAttendees = await Promise.all(allEventsAttendeesPromises);
 
-    
+    filteredEvents = filteredEvents.map((evnt, i) => {
+      evnt.attendees.approved = allEventsApprovedAttendees[i];
+    });
+
+    res.status(200).json(filteredEvents);
   } catch (err) {
     next(err);
   }
