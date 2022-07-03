@@ -8,7 +8,7 @@ const {
   bcrypt = require(`bcryptjs`),
   jwt = require(`jsonwebtoken`);
 
-
+// TODO: update login to expect credentials instead of username or email
 router.post(`/`, async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
