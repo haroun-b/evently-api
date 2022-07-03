@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const Event = require("../models/Event.model");
-const validateId = require("../middleware/idValidation.middleware");
+const validateIds = require("../middleware/idValidation.middleware");
 const { handleNotExist } = require("../utils/helpers.function");
 const AttendanceRequest = require("../models/AttendanceRequest.model");
 // const User = require("../models/User.model");
@@ -137,7 +137,7 @@ router.get(`/`, async (req, res, next) => {
 });
 
 // get event by id
-router.get(`/:eventId`, validateId, async (req, res, next) => {
+router.get(`/:eventId`, validateIds, async (req, res, next) => {
   try {
     const { eventId } = req.params;
 
@@ -199,7 +199,7 @@ router.post("/", async (req, res, next) => {
 });
 
 // edit event by id
-router.patch(`/:eventId`, validateId, async (req, res, next) => {
+router.patch(`/:eventId`, validateIds, async (req, res, next) => {
   try {
     const { eventId } = req.params;
 
@@ -259,7 +259,7 @@ router.patch(`/:eventId`, validateId, async (req, res, next) => {
 });
 
 // delete event by id
-router.delete(`/:eventId`, validateId, async (req, res, next) => {
+router.delete(`/:eventId`, validateIds, async (req, res, next) => {
   try {
 
   } catch (err) {

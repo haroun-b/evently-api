@@ -2,7 +2,7 @@ const router = require("express").Router();
 const User = require("../models/User.model");
 const Event = require("../models/Event.model");
 const AttendanceRequest = require(`../models/AttendanceRequest.model`);
-const validateId = require("../middleware/idValidation.middleware");
+const validateIds = require("../middleware/idValidation.middleware");
 const { handleNotExist } = require("../utils/helpers.function");
 
 
