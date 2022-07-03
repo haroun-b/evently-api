@@ -1,13 +1,16 @@
 const { isValidId, handleInvalidId } = require(`../utils/helpers.function`);
 
 
-function validateId(req, res, next) {
+function validateIds(req, res, next) {
   try {
-    const { id } = req.params;
+    const idArray = Object.entries(req.params)
+      .filter(([key, value]) => key.search(/id/gi) !== -1);
 
-    if (!isValidId(id)) {
-      handleInvalidId(id, res);
-      return;
+    for (const [key, value] of idArray) {
+      if (!isValidId(value)) {
+        handleInvalidId(value, res);
+        return;
+      }
     }
 
     next();
@@ -17,4 +20,4 @@ function validateId(req, res, next) {
 }
 
 
-module.exports = validateId;
+module.exports = validateIds;

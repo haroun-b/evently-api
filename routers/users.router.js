@@ -1,11 +1,11 @@
 const router = require("express").Router();
 const User = require("../models/User.model");
-const validateId = require("../middleware/idValidation.middleware");
+const validateIds = require("../middleware/idValidation.middleware");
 const { handleNotExist } = require("../utils/helpers.function");
 
 
 // get a user's profile by user id
-router.get("/:id", validateId, async (req, res, next) => {
+router.get("/:id", validateIds, async (req, res, next) => {
   try {
     const id = req.params.id;
     const userInfo = await User.findById(id);
