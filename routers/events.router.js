@@ -118,18 +118,18 @@ router.get(`/`, async (req, res, next) => {
         select: { password: 0, email: 0, __v: 0 }
       });
 
-    // an array of promises when resolved becomes a nested array where every sub-array has all the approved attendees for the event with the same index in filteredEvents
-    const allEventsAttendeesPromises = []
+    // an array of promises when resolved becomes an array of numbers. where each number represent the count of all the approved attendees for the event with the same index in filteredEvents
+    const EventsAttendeesCountPromises = []
 
     filteredEvents.forEach(evnt => {
       allEventsAttendeesPromises.push(AttendanceRequest.find({ event: evnt.id }, { status: `approved` }));
     });
 
 
-    const allEventsApprovedAttendees = await Promise.all(allEventsAttendeesPromises);
+    const EventsApprovedAttendeesCount = await Promise.all(EventsAttendeesCountPromises);
 
     filteredEvents.forEach((evnt, i) => {
-      evnt.attendees.approved = allEventsApprovedAttendees[i];
+      evnt._doc.attendees.approvedCount = EventsApprovedAttendeesCount[i];
     });
 
     res.status(200).json({ city, events: filteredEvents });
@@ -138,9 +138,17 @@ router.get(`/`, async (req, res, next) => {
   }
 });
 
+
+// ==========================================================
+// users are authenticated but access is not restricted
+// ==========================================================
+router.use(require("../middleware/auth.middleware"));
+// ==========================================================
+
 // get event by id
 router.get(`/:eventId`, validateIds, async (req, res, next) => {
   try {
+    const { user } = req;
     const { eventId } = req.params;
 
     const foundEvent = await Event.findById(eventId)
@@ -150,6 +158,15 @@ router.get(`/:eventId`, validateIds, async (req, res, next) => {
       handleNotExist(`event`, eventId, res);
       return;
     }
+
+    if (foundEvent.creator.id === user?.id) {
+      // appends all attendance requests to the found event
+      foundEvent._doc.attendees.requests = await AttendanceRequest.find({ event: eventId });
+    } else {
+      // appends all approved attendance requests to the found event
+      foundEvent._doc.attendees.approved = await AttendanceRequest.find({ event: eventId }, { status: `approved` });
+    }
+
 
     res.status(200).json(foundEvent);
   } catch (err) {
@@ -161,7 +178,6 @@ router.get(`/:eventId`, validateIds, async (req, res, next) => {
 // ==========================================================
 // access restricted to authenticated users only
 // ==========================================================
-router.use(require("../middleware/auth.middleware"));
 router.use(require(`../middleware/accessRestricting.middleware`));
 // ==========================================================
 
@@ -272,14 +288,14 @@ router.delete(`/:eventId`, validateIds, async (req, res, next) => {
       handleNotExist(`event`, eventId, res);
       return;
     }
-    
+
     await Promise.all([
       MessageReceipt.deleteMany({ event: eventId }),
       Message.deleteMany({ event: eventId }),
       AttendanceRequest.deleteMany({ event: eventId }),
       Event.findByIdAndDelete(eventId)
     ]);
-    
+
     res.sendStatus(204);
   } catch (err) {
     next(err);
