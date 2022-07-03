@@ -119,7 +119,7 @@ router.get(`/`, async (req, res, next) => {
     // an array of promises when resolved becomes a nested array where every sub-array has all the approved attendees for the event with the same index in filteredEvents
     const allEventsAttendeesPromises = []
 
-    filteredEvents.map(evnt => {
+    filteredEvents.forEach(evnt => {
       allEventsAttendeesPromises.push(AttendanceRequest.find({ event: evnt.id }, { status: `approved` }));
     });
 
