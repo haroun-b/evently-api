@@ -9,12 +9,21 @@ const eventSchema = new Schema(
       maxLength: [50, `must not exceed 50 characters in length`],
       trim: true,
     },
+    address: {
+      city: String,
+      postcode: String,
+      street: String
+    },
     location: {
-      address: String,
-      coordinates: {
-        lat: Number,
-        long: Number,
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point'
       },
+      coordinates: {
+        type: [Number],
+        required: true
+      }
     },
     startAt: {
       type: Date,
@@ -23,8 +32,15 @@ const eventSchema = new Schema(
       type: Date,
     },
     attendees: {
-      minimum: Number,
-      maximum: Number,
+      minimum: {
+        type: Number,
+        min: 1,
+        default: 1
+      },
+      maximum: {
+        type: Number,
+        min: 1,
+      }
     },
     price: {
       type: Number,
