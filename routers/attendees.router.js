@@ -4,16 +4,6 @@ const AttendanceRequest = require(`../models/AttendanceRequest.model`);
 const { handleNotExist } = require("../utils/helpers.function");
 
 
-// get all attendees for one event by event id
-router.get(`/:eventId/attendees`, async (req, res, next) => {
-  try {
-
-  } catch (err) {
-    next(err);
-  }
-});
-
-
 // ==========================================================
 // access restricted to authenticated users only
 // ==========================================================
