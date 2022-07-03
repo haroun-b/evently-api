@@ -19,24 +19,42 @@ router.get(`/:eventId/messages`, async (req, res, next) => {
   try {
     const { user } = req;
     const { eventId } = req.params;
+    const page = parseInt(req.query.page) || 0;
 
+    const foundEvent = await Event.findById(eventId);
 
-    const updatedMessage = await Message.findOneAndUpdate(
+    if (!foundEvent) {
+      handleNotExist(`event`, eventId, res);
+      return;
+    }
+
+    const userIsApprovedAttendee = (await AttendanceRequest.findOne(
       {
-        _id: messageId,
-        author: user.id,
-        createdAt: { $gte: Date.now() - 600000 }  //created less than 10min ago
-      },
-      {
-        message
-      },
-      {
-        runValidators: true,
-        new: true
+        event: eventId,
+        user: user.id,
+        status: `approved`
       }
-    );
+    )) !== null;
 
-    res.status(200).json(updatedMessage);
+
+    if (!userIsApprovedAttendee && foundEvent.creator.toString() !== user.id) {
+      res.sendStatus(401);
+      return;
+    }
+
+    const eventMessages = await Message.find(
+      { event: eventId },
+      {},
+      {
+        sort: { createdAt: 1 },
+        limit: 50,
+        skip: 50 * page
+      }
+    )
+
+    // TODO: ADD MESSAGE RECEIPTS
+
+    res.status(200).json(eventMessages);
   } catch (err) {
     next(err);
   }
