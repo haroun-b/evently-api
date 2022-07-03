@@ -6,6 +6,8 @@ const AttendanceRequest = require("../models/AttendanceRequest.model");
 // const User = require("../models/User.model");
 const requestIp = require('request-ip');
 const geoip = require("geoip-lite");
+const Message = require("../models/Message.model");
+const MessageReceipt = require("../models/MessageReceipt.model");
 
 
 // get events based on filter values
@@ -261,7 +263,24 @@ router.patch(`/:eventId`, validateIds, async (req, res, next) => {
 // delete event by id
 router.delete(`/:eventId`, validateIds, async (req, res, next) => {
   try {
+    const { user } = req,
+      { eventId } = req.params;
 
+    const foundEvent = await Event.findOne({ _id: eventId, creator: user.id });
+
+    if (!foundEvent) {
+      handleNotExist(`event`, eventId, res);
+      return;
+    }
+    
+    await Promise.all([
+      MessageReceipt.deleteMany({ event: eventId }),
+      Message.deleteMany({ event: eventId }),
+      AttendanceRequest.deleteMany({ event: eventId }),
+      Event.findByIdAndDelete(eventId)
+    ]);
+    
+    res.sendStatus(204);
   } catch (err) {
     next(err);
   }
