@@ -1,5 +1,7 @@
 const router = require("express").Router();
+const validateIds = require(`../middleware/idValidation.middleware`);
 const Event = require("../models/Event.model");
+const Message = require("../models/Message.model");
 
 
 // ==========================================================
@@ -21,9 +23,19 @@ router.get(`/:eventId/messages`, async (req, res, next) => {
 });
 
 // send a message for one event by event id
-router.post(`/:eventId/messages`, async (req, res, next) => {
+router.post(`/:eventId/messages`, validateIds ,async (req, res, next) => {
   try {
+    const {user} = req;
+    const {eventId} = req.params;
+    const {message} = req.body;
+    
+    const createdMessage = await Message.create({
+      event: eventId,
+      author: user.id,
+      message
+    });
 
+    res.status(201).json(createdMessage);
   } catch (err) {
     next(err);
   }
