@@ -2,6 +2,7 @@ const router = require("express").Router();
 const validateIds = require(`../middleware/idValidation.middleware`);
 const Event = require("../models/Event.model");
 const Message = require("../models/Message.model");
+const AttendanceRequest = require(`../models/AttendanceRequest.model`);
 
 
 // ==========================================================
@@ -16,7 +17,26 @@ router.use(require(`../middleware/accessRestricting.middleware`));
 // get all messages for one event by event id
 router.get(`/:eventId/messages`, async (req, res, next) => {
   try {
+    const { user } = req;
+    const { eventId } = req.params;
 
+
+    const updatedMessage = await Message.findOneAndUpdate(
+      {
+        _id: messageId,
+        author: user.id,
+        createdAt: { $gte: Date.now() - 600000 }  //created less than 10min ago
+      },
+      {
+        message
+      },
+      {
+        runValidators: true,
+        new: true
+      }
+    );
+
+    res.status(200).json(updatedMessage);
   } catch (err) {
     next(err);
   }
@@ -28,6 +48,27 @@ router.post(`/:eventId/messages`, validateIds, async (req, res, next) => {
     const { user } = req;
     const { eventId } = req.params;
     const { message } = req.body;
+
+    const foundEvent = await Event.findById(eventId);
+
+    if (!foundEvent) {
+      handleNotExist(`event`, eventId, res);
+      return;
+    }
+
+    const userIsApprovedAttendee = (await AttendanceRequest.findOne(
+      {
+        event: eventId,
+        user: user.id,
+        status: `approved`
+      }
+    )) !== null;
+
+
+    if (!userIsApprovedAttendee && foundEvent.creator.toString() !== user.id) {
+      res.sendStatus(401);
+      return;
+    }
 
     const createdMessage = await Message.create({
       event: eventId,
@@ -48,7 +89,7 @@ router.patch(`/:eventId/messages/:messageId`, validateIds, async (req, res, next
     const { messageId } = req.params;
     const { message } = req.body;
 
-  
+
     const updatedMessage = await Message.findOneAndUpdate(
       {
         _id: messageId,
