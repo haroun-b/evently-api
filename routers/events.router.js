@@ -121,8 +121,8 @@ router.get(`/`, async (req, res, next) => {
     // an array of promises when resolved becomes an array of numbers. where each number represent the count of all the approved attendees for the event with the same index in filteredEvents
     const EventsAttendeesCountPromises = []
 
-    filteredEvents.map(evnt => {
-      EventsAttendeesCountPromises.push(AttendanceRequest.count({ event: evnt.id }, { status: `approved` }));
+    filteredEvents.forEach(evnt => {
+      allEventsAttendeesPromises.push(AttendanceRequest.find({ event: evnt.id }, { status: `approved` }));
     });
 
 
