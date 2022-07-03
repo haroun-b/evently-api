@@ -2,7 +2,6 @@ const router = require("express").Router();
 const User = require("../models/User.model");
 const Event = require("../models/Event.model");
 const AttendanceRequest = require(`../models/AttendanceRequest.model`);
-const validateIds = require("../middleware/idValidation.middleware");
 const { handleNotExist } = require("../utils/helpers.function");
 
 
@@ -16,8 +15,9 @@ router.use(require(`../middleware/accessRestricting.middleware`));
 // get the current user's profile
 router.get("/", async (req, res, next) => {
   try {
-    const id = req.user.id;
-    const userInfo = await User.findById(id);
+    const { id } = req.user;
+    const userInfo = await User.findById(id, { password: 0, isVerified: 0, __v: 0 });
+    
     res.status(200).json(userInfo);
   } catch (error) {
     next(error);
