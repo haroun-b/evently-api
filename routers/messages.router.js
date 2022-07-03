@@ -23,12 +23,12 @@ router.get(`/:eventId/messages`, async (req, res, next) => {
 });
 
 // send a message for one event by event id
-router.post(`/:eventId/messages`, validateIds ,async (req, res, next) => {
+router.post(`/:eventId/messages`, validateIds, async (req, res, next) => {
   try {
-    const {user} = req;
-    const {eventId} = req.params;
-    const {message} = req.body;
-    
+    const { user } = req;
+    const { eventId } = req.params;
+    const { message } = req.body;
+
     const createdMessage = await Message.create({
       event: eventId,
       author: user.id,
@@ -42,9 +42,29 @@ router.post(`/:eventId/messages`, validateIds ,async (req, res, next) => {
 });
 
 // edit a message for one event by event id and message id
-router.patch(`:eventId/messages/:messageId`, async (req, res, next) => {
+router.patch(`/:eventId/messages/:messageId`, validateIds, async (req, res, next) => {
   try {
+    const { user } = req;
+    const { messageId } = req.params;
+    const { message } = req.body;
 
+  
+    const updatedMessage = await Message.findOneAndUpdate(
+      {
+        _id: messageId,
+        author: user.id,
+        createdAt: { $gte: Date.now() - 600000 }  //created less than 10min ago
+      },
+      {
+        message
+      },
+      {
+        runValidators: true,
+        new: true
+      }
+    );
+
+    res.status(200).json(updatedMessage);
   } catch (err) {
     next(err);
   }
