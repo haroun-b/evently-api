@@ -61,6 +61,8 @@ const userSchema = new Schema(
 
 );
 
+// TODO: add a predelete middleware
+
 const User = model(`User`, userSchema);
 
 module.exports = User;

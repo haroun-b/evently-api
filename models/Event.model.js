@@ -93,6 +93,8 @@ const eventSchema = new Schema(
   }
 );
 
+// TODO: add a post find and findOne middleware to append attendees
+
 const Event = model(`Event`, eventSchema);
 
 module.exports = Event;
