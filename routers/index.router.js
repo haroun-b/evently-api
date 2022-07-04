@@ -20,7 +20,7 @@ router.use(`/reset-password`, require(`./resetPassword.router`));
 
 router.use("/events", require("./events.router"));
 router.use("/events", require("./attendees.router"));
-router.use("/events", require("./messages.router"));
+router.use("/messages", require("./messages.router"));
 
 router.use(`/me`, require(`./currentUser.router`));
 

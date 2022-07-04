@@ -3,6 +3,7 @@ const validateIds = require(`../middleware/idValidation.middleware`);
 const Event = require("../models/Event.model");
 const Message = require("../models/Message.model");
 const AttendanceRequest = require(`../models/AttendanceRequest.model`);
+const { handleNotExist } = require("../utils/helpers.function");
 
 
 // ==========================================================
@@ -15,7 +16,7 @@ router.use(require(`../middleware/accessRestricting.middleware`));
 // TODO: add middleware to restrict acces to approved attendees
 
 // get all messages for one event by event id
-router.get(`/:eventId/messages`, async (req, res, next) => {
+router.get(`/events/:eventId`, validateIds, async (req, res, next) => {
   try {
     const { user } = req;
     const { eventId } = req.params;
@@ -61,7 +62,7 @@ router.get(`/:eventId/messages`, async (req, res, next) => {
 });
 
 // send a message for one event by event id
-router.post(`/:eventId/messages`, validateIds, async (req, res, next) => {
+router.post(`/events/:eventId`, validateIds, async (req, res, next) => {
   try {
     const { user } = req;
     const { eventId } = req.params;
@@ -101,7 +102,7 @@ router.post(`/:eventId/messages`, validateIds, async (req, res, next) => {
 });
 
 // edit a message for one event by event id and message id
-router.patch(`/:eventId/messages/:messageId`, validateIds, async (req, res, next) => {
+router.patch(`/:messageId`, validateIds, async (req, res, next) => {
   try {
     const { user } = req;
     const { messageId } = req.params;
@@ -130,9 +131,26 @@ router.patch(`/:eventId/messages/:messageId`, validateIds, async (req, res, next
 });
 
 // delete a message for one event by event id and message id
-router.delete(`:eventId/messages/:messageId`, async (req, res, next) => {
+router.delete(`/:messageId`, validateIds, async (req, res, next) => {
   try {
+    const {messageId} = req.params;
+    const {user} = req;
 
+    const foundMessage = await Message.findById(messageId);
+
+    if (!foundMessage) {
+      handleNotExist(`message`, messageId, res);
+      return;
+    }
+
+    if (foundMessage.author.toString() !== user.id) {
+      res.sendStatus(403);
+      return;
+    }
+
+    await Message.findByIdAndUpdate(messageId, {author: null, message: null});
+
+    res.sendStatus(204);
   } catch (err) {
     next(err);
   }
