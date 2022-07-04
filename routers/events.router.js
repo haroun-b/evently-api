@@ -4,11 +4,10 @@ const validateIds = require("../middleware/idValidation.middleware");
 const { handleNotExist } = require("../utils/helpers.function");
 const AttendanceRequest = require("../models/AttendanceRequest.model");
 // const User = require("../models/User.model");
-const requestIp = require('request-ip');
+const requestIp = require("request-ip");
 const geoip = require("geoip-lite");
 const Message = require("../models/Message.model");
 const MessageReceipt = require("../models/MessageReceipt.model");
-
 
 // get events based on filter values
 router.get(`/`, async (req, res, next) => {
@@ -27,43 +26,37 @@ router.get(`/`, async (req, res, next) => {
       search,
       requiresApproval,
       isGroupEvent,
-      page = 0
+      page = 0,
     } = req.query;
 
     // console.log(req.query)
     // res.sendStatus(200)
-    // return 
-
+    // return
 
     if (!longitude && !latitude) {
-
       if (city) {
         filterQuery["address.city"] = new RegExp(city, `ig`);
-
       } else {
         //use ip address
         const ip = requestIp.getClientIp(req);
         const ipLocation = geoip.lookup(ip);
 
         if (ipLocation) {
-          ({ ll: [latitude, longitude] } = ipLocation);
+          ({
+            ll: [latitude, longitude],
+          } = ipLocation);
 
           ({ city } = ipLocation);
         }
-
       }
     }
-
 
     if (longitude && latitude) {
       filterQuery.location = {
         $geoWithin: {
-          $centerSphere: [
-            [longitude, latitude],
-            searchRadius / 6378
-          ]
-        }
-      }
+          $centerSphere: [[longitude, latitude], searchRadius / 6378],
+        },
+      };
     }
 
     // TODO: handle date related errors
@@ -93,8 +86,8 @@ router.get(`/`, async (req, res, next) => {
       if (isGroupEvent === `true`) {
         filterQuery.$or = [
           { "attendees.maximum": { $gt: 1 } },
-          { "attendees.maximum": { $exists: false } }
-        ]
+          { "attendees.maximum": { $exists: false } },
+        ];
       } else {
         filterQuery["attendees.maximum"] = 1;
       }
@@ -103,32 +96,31 @@ router.get(`/`, async (req, res, next) => {
     if (search) {
       filterQuery.$or = [
         { title: new RegExp(search, `ig`) },
-        { description: new RegExp(search, `ig`) }
-      ]
+        { description: new RegExp(search, `ig`) },
+      ];
     }
 
-
-    console.log({ filterQuery })
+    console.log({ filterQuery });
     let filteredEvents = await Event.find(
       filterQuery,
       {},
       { sort: { startAt: 1 }, skip: page * 2, limit: 2 }
-    )
-      .populate({
-        path: `creator`,
-        select: { password: 0, email: 0, __v: 0 }
-      });
+    ).populate({
+      path: `creator`,
+      select: { password: 0, email: 0, __v: 0 },
+    });
 
     // an array of promises when resolved becomes an array of numbers. where each number represent the count of all the approved attendees for the event with the same index in filteredEvents
-    const EventsAttendeesCountPromises = []
+    const EventsAttendeesCountPromises = [];
 
 
     filteredEvents.forEach(evnt => {
       EventsAttendeesCountPromises.push(AttendanceRequest.count({ event: evnt.id }, { status: `approved` }));
     });
 
-
-    const EventsApprovedAttendeesCount = await Promise.all(EventsAttendeesCountPromises);
+    const EventsApprovedAttendeesCount = await Promise.all(
+      EventsAttendeesCountPromises
+    );
 
     filteredEvents.forEach((evnt, i) => {
       evnt._doc.attendees.approvedCount = EventsApprovedAttendeesCount[i];
@@ -139,7 +131,6 @@ router.get(`/`, async (req, res, next) => {
     next(err);
   }
 });
-
 
 // ==========================================================
 // users are authenticated but access is not restricted
@@ -153,8 +144,10 @@ router.get(`/:eventId`, validateIds, async (req, res, next) => {
     const { user } = req;
     const { eventId } = req.params;
 
-    const foundEvent = await Event.findById(eventId)
-      .populate({ path: `creator`, select: { password: 0, email: 0, __v: 0 } });
+    const foundEvent = await Event.findById(eventId).populate({
+      path: `creator`,
+      select: { password: 0, email: 0, __v: 0 },
+    });
 
     if (!foundEvent) {
       handleNotExist(`event`, eventId, res);
@@ -163,12 +156,16 @@ router.get(`/:eventId`, validateIds, async (req, res, next) => {
 
     if (foundEvent.creator.id === user?.id) {
       // appends all attendance requests to the found event
-      foundEvent._doc.attendees.requests = await AttendanceRequest.find({ event: eventId });
+      foundEvent._doc.attendees.requests = await AttendanceRequest.find({
+        event: eventId,
+      });
     } else {
       // appends all approved attendance requests to the found event
-      foundEvent._doc.attendees.approved = await AttendanceRequest.find({ event: eventId }, { status: `approved` });
+      foundEvent._doc.attendees.approved = await AttendanceRequest.find(
+        { event: eventId },
+        { status: `approved` }
+      );
     }
-
 
     res.status(200).json(foundEvent);
   } catch (err) {
@@ -176,17 +173,19 @@ router.get(`/:eventId`, validateIds, async (req, res, next) => {
   }
 });
 
-
 // ==========================================================
 // access restricted to authenticated users only
 // ==========================================================
 router.use(require(`../middleware/accessRestricting.middleware`));
+const uploader = require("../config/cloudinary.config");
+const { handleImagePath } = require(`../utils/helpers.function`);
 // ==========================================================
 
 // create event
-router.post("/", async (req, res, next) => {
+router.post("/", uploader.single("file"), async (req, res, next) => {
   try {
     const id = req.user.id;
+    const imageUrl = handleImagePath(req.file, "file");
     let {
       title,
       address,
@@ -210,6 +209,7 @@ router.post("/", async (req, res, next) => {
       attendees,
       description,
       type,
+      imageUrl,
       approvalRequired,
     });
     res.status(201).json(createdEvent);
@@ -219,46 +219,35 @@ router.post("/", async (req, res, next) => {
 });
 
 // edit event by id
-router.patch(`/:eventId`, validateIds, async (req, res, next) => {
-  try {
-    const { eventId } = req.params;
+router.patch(
+  `/:eventId`,
+  uploader.single("file"),
+  validateIds,
+  async (req, res, next) => {
+    try {
+      const { eventId } = req.params;
 
-    const foundEvent = await Event.findById(eventId)
-      .populate({ path: `creator`, select: { password: 0, email: 0, __v: 0 } });
+      const foundEvent = await Event.findById(eventId).populate({
+        path: `creator`,
+        select: { password: 0, email: 0, __v: 0 },
+      });
 
-    if (!foundEvent) {
-      handleNotExist(`event`, eventId, res);
-      return;
-    }
+      if (!foundEvent) {
+        handleNotExist(`event`, eventId, res);
+        return;
+      }
 
-    if (foundEvent.creator.id !== req.user.id) {
-      res.status(403)
-        .json({
+      if (foundEvent.creator.id !== req.user.id) {
+        res.status(403).json({
           errors: {
-            event: `cannot edit an event you didn't create`
-          }
+            event: `cannot edit an event you didn't create`,
+          },
         });
-      return;
-    }
+        return;
+      }
 
-    let {
-      title,
-      location,
-      startAt,
-      endAt,
-      attendees,
-      description,
-      type,
-      approvalRequired,
-    } = req.body;
-
-    startAt = new Date(startAt);
-    endAt = new Date(endAt);
-
-    const updatedEvent = await Event.findByIdAndUpdate(
-      eventId,
-      {
-        creator: req.user.id,
+      const imageUrl = handleImagePath(req.file, "file");
+      let {
         title,
         location,
         startAt,
@@ -267,16 +256,38 @@ router.patch(`/:eventId`, validateIds, async (req, res, next) => {
         description,
         type,
         approvalRequired,
-      },
-      { runValidators: true, new: true }
-    ).populate({ path: `creator`, select: { password: 0, email: 0, __v: 0 } });
+      } = req.body;
 
+      startAt = new Date(startAt);
+      endAt = new Date(endAt);
 
-    res.status(200).json(updatedEvent);
-  } catch (err) {
-    next(err);
+      const updatedEvent = await Event.findByIdAndUpdate(
+        eventId,
+        {
+          // creator: req.user.id,
+          // Im not sure we need the creator here
+          title,
+          location,
+          startAt,
+          endAt,
+          attendees,
+          description,
+          type,
+          approvalRequired,
+          imageUrl,
+        },
+        { runValidators: true, new: true }
+      ).populate({
+        path: `creator`,
+        select: { password: 0, email: 0, __v: 0 },
+      });
+
+      res.status(200).json(updatedEvent);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 // delete event by id
 router.delete(`/:eventId`, validateIds, async (req, res, next) => {
@@ -295,7 +306,7 @@ router.delete(`/:eventId`, validateIds, async (req, res, next) => {
       MessageReceipt.deleteMany({ event: eventId }),
       Message.deleteMany({ event: eventId }),
       AttendanceRequest.deleteMany({ event: eventId }),
-      Event.findByIdAndDelete(eventId)
+      Event.findByIdAndDelete(eventId),
     ]);
 
     res.sendStatus(204);
@@ -303,6 +314,5 @@ router.delete(`/:eventId`, validateIds, async (req, res, next) => {
     next(err);
   }
 });
-
 
 module.exports = router;
