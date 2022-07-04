@@ -12,18 +12,18 @@ const eventSchema = new Schema(
     address: {
       city: String,
       postcode: String,
-      street: String
+      street: String,
     },
     location: {
       type: {
         type: String,
-        enum: ['Point'],
-        default: 'Point'
+        enum: ["Point"],
+        default: "Point",
       },
       coordinates: {
         type: [Number],
-        required: true
-      }
+        required: true,
+      },
     },
     startAt: {
       type: Date,
@@ -35,12 +35,12 @@ const eventSchema = new Schema(
       minimum: {
         type: Number,
         min: 1,
-        default: 1
+        default: 1,
       },
       maximum: {
         type: Number,
         min: 1,
-      }
+      },
     },
     price: {
       type: Number,
@@ -81,7 +81,8 @@ const eventSchema = new Schema(
     },
     imageUrl: {
       type: String,
-      dafault: "Blablabla",
+      default:
+        "https://res.cloudinary.com/dh1pzjhka/image/upload/v1656930203/evently-app/event-icon_ixycye.png",
     },
     approvalRequired: {
       type: Boolean,

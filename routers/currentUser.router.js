@@ -2,8 +2,6 @@ const router = require("express").Router();
 const User = require("../models/User.model");
 const Event = require("../models/Event.model");
 const AttendanceRequest = require(`../models/AttendanceRequest.model`);
-const { handleNotExist } = require("../utils/helpers.function");
-
 
 // ==========================================================
 // access restricted to authenticated users only
@@ -16,8 +14,12 @@ router.use(require(`../middleware/accessRestricting.middleware`));
 router.get("/", async (req, res, next) => {
   try {
     const { id } = req.user;
-    const userInfo = await User.findById(id, { password: 0, isVerified: 0, __v: 0 });
-    
+    const userInfo = await User.findById(id, {
+      password: 0,
+      isVerified: 0,
+      __v: 0,
+    });
+
     res.status(200).json(userInfo);
   } catch (error) {
     next(error);
@@ -25,14 +27,19 @@ router.get("/", async (req, res, next) => {
 });
 
 // edit the current user's profile
-router.patch("/", async (req, res, next) => {
+const { handleImagePath } = require(`../utils/helpers.function`);
+const uploader = require("../config/cloudinary.config");
+
+router.patch("/", uploader.single("file"), async (req, res, next) => {
   try {
     const id = req.user.id;
-    // User can only modify his 'name' and 'bio'
+
+    // User can only modify his 'name', 'bio' and 'image'
+    const imageUrl = handleImagePath(req.file, "file");
     const { name, bio } = req.body;
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { name, bio },
+      { name, bio, imageUrl },
       { new: true }
     );
     res.status(200).json(updatedUser);
@@ -58,15 +65,14 @@ router.get(`/events`, async (req, res, next) => {
     const { user } = req;
 
     const createdByUser = await Event.find({ creator: user.id });
-    const attendedByUser = await AttendanceRequest.find({ user: user.id })
-      .populate(`event`);
-
+    const attendedByUser = await AttendanceRequest.find({
+      user: user.id,
+    }).populate(`event`);
 
     res.status(200).json({ createdByUser, attendedByUser });
   } catch (err) {
     next(err);
   }
 });
-
 
 module.exports = router;
