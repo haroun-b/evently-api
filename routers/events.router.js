@@ -67,6 +67,7 @@ router.get(`/`, async (req, res, next) => {
     }
 
     // TODO: handle date related errors
+    // TODO: only show events where approved < maximum
 
     if (startAfter) {
       filterQuery.startAt = { $gte: Date.parse(startAfter) };
@@ -121,8 +122,9 @@ router.get(`/`, async (req, res, next) => {
     // an array of promises when resolved becomes an array of numbers. where each number represent the count of all the approved attendees for the event with the same index in filteredEvents
     const EventsAttendeesCountPromises = []
 
+
     filteredEvents.forEach(evnt => {
-      allEventsAttendeesPromises.push(AttendanceRequest.find({ event: evnt.id }, { status: `approved` }));
+      EventsAttendeesCountPromises.push(AttendanceRequest.count({ event: evnt.id }, { status: `approved` }));
     });
 
 

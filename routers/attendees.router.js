@@ -2,6 +2,7 @@ const router = require("express").Router();
 const Event = require("../models/Event.model");
 const AttendanceRequest = require(`../models/AttendanceRequest.model`);
 const { handleNotExist } = require("../utils/helpers.function");
+const validateIds = require("../middleware/idValidation.middleware");
 
 
 // ==========================================================
@@ -12,10 +13,10 @@ router.use(require(`../middleware/accessRestricting.middleware`));
 // ==========================================================
 
 // send an attendance request for an event by event id
-router.post(`/:eventId/attendees`, async (req, res, next) => {
+router.post(`/:eventId/attendees`, validateIds, async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const eventId = req.params;
+    const { eventId } = req.params;
 
     const foundAttendanceRequest = await AttendanceRequest.findOne(
       { user: userId },
@@ -35,9 +36,9 @@ router.post(`/:eventId/attendees`, async (req, res, next) => {
     }
 
     // Checking if user needs approval to register to the event
-    let status = "Pending";
+    let status = "pending";
     if (!foundEvent.approvalRequired) {
-      status = "Approved";
+      status = "approved";
     }
 
     // Create attendance request, approved if no need of approval
