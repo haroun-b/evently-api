@@ -1,6 +1,4 @@
 const {
-  isValidPassword,
-  handleInvalidPassword,
   handleNotExist
 } = require(`../utils/helpers.function`),
   router = require(`express`).Router(),
@@ -8,20 +6,15 @@ const {
   bcrypt = require(`bcryptjs`),
   jwt = require(`jsonwebtoken`);
 
-// TODO: update login to expect credentials instead of username or email
+
 router.post(`/`, async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
 
-    if (!isValidPassword(password)) {
-      handleInvalidPassword(res, next);
-      return;
-    }
-
-    const searchQuery = username ? {username} : {email};
-    const foundUser = await User.findOne(searchQuery);
+    const credential = username ? {username} : {email};
+    const foundUser = await User.findOne(credential);
     if (!foundUser) {
-      handleNotExist(`email`, email, res);
+      handleNotExist(`user`, username || email, res);
       return;
     }
 
@@ -30,7 +23,7 @@ router.post(`/`, async (req, res, next) => {
       res.status(401)
         .json({
           errors: {
-            password: `Wrong password`
+            password: `wrong password`
           }
         });
       return;
@@ -40,7 +33,7 @@ router.post(`/`, async (req, res, next) => {
       res.status(401)
         .json({
           errors: {
-            verification: `Account not verified`
+            verification: `account not verified`
           }
         });
       return;
@@ -48,10 +41,10 @@ router.post(`/`, async (req, res, next) => {
 
     const authToken = jwt.sign({ userId: foundUser.id }, process.env.TOKEN_SECRET, {
       algorithm: `HS256`,
-      expiresIn: `12h`,
+      expiresIn: `7d`,
     });
 
-    res.status(200).json({ email, authToken });
+    res.status(200).json({ username, email, authToken });
   } catch (err) {
     next(err);
   }
