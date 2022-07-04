@@ -32,7 +32,7 @@ async function internalError(err, req, res, next) {
             service: 'Gmail',
             auth: {
               user: process.env.EMAIL_USERNAME,
-              pass: process.env.EMAIL_PASSWORD
+              pass: process.env.APP_PASSWORD
             }
           });
 
