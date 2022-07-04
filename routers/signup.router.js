@@ -1,16 +1,19 @@
 const {
     isValidPassword,
     handleInvalidPassword,
+    handleImagePath,
   } = require(`../utils/helpers.function`),
   router = require(`express`).Router(),
   User = require(`../models/User.model`),
   bcrypt = require(`bcryptjs`),
   jwt = require(`jsonwebtoken`),
   nodemailer = require(`nodemailer`);
+const uploader = require("../config/cloudinary.config");
 
-  
-router.post("/", async (req, res, next) => {
+// uploader.single("keyName of the input")
+router.post("/", uploader.single("file"), async (req, res, next) => {
   try {
+    const imageUrl = handleImagePath(req.file, "file");
     const { username, email, password } = req.body;
 
     if (!isValidPassword(password)) {
@@ -26,6 +29,7 @@ router.post("/", async (req, res, next) => {
       name: username,
       email,
       password: hashedPassword,
+      imageUrl,
     });
 
     const verifToken = jwt.sign(
@@ -60,6 +64,5 @@ router.post("/", async (req, res, next) => {
     next(err);
   }
 });
-
 
 module.exports = router;
