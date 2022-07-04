@@ -11,7 +11,7 @@ router.get("/:id", validateIds, async (req, res, next) => {
     const userInfo = await User.findById(id, { username: 1, name: 1, bio: 1, badges: 1, imageUrl: 1 });
 
     if (!userInfo) {
-      handleNotExist("userId", id, res);
+      handleNotExist("user", id, res);
       return;
     }
 

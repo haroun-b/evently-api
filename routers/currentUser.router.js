@@ -14,11 +14,8 @@ router.use(require(`../middleware/accessRestricting.middleware`));
 router.get("/", async (req, res, next) => {
   try {
     const { id } = req.user;
-    const userInfo = await User.findById(id, {
-      password: 0,
-      isVerified: 0,
-      __v: 0,
-    });
+
+    const userInfo = await User.findById(id, { password: 0, isVerified: 0, __v: 0 });
 
     res.status(200).json(userInfo);
   } catch (error) {
@@ -26,12 +23,14 @@ router.get("/", async (req, res, next) => {
   }
 });
 
+// TODO: allow user to modify their profile picture
 // edit the current user's profile
 const { handleImagePath } = require(`../utils/helpers.function`);
 const uploader = require("../config/cloudinary.config");
 
 router.patch("/", uploader.single("file"), async (req, res, next) => {
   try {
+
     const id = req.user.id;
 
     // User can only modify his 'name', 'bio' and 'image'
@@ -40,8 +39,12 @@ router.patch("/", uploader.single("file"), async (req, res, next) => {
     const updatedUser = await User.findByIdAndUpdate(
       id,
       { name, bio, imageUrl },
-      { new: true }
+      {
+        runValidators: true,
+        new: true
+      }
     );
+
     res.status(200).json(updatedUser);
   } catch (error) {
     next(error);
@@ -51,7 +54,7 @@ router.patch("/", uploader.single("file"), async (req, res, next) => {
 // delete the current user's profile
 router.delete("/", async (req, res, next) => {
   try {
-    const id = req.user.id;
+    const { id } = req.user;
     await User.findByIdAndDelete(id);
     res.sendStatus(204);
   } catch (error) {
@@ -65,9 +68,19 @@ router.get(`/events`, async (req, res, next) => {
     const { user } = req;
 
     const createdByUser = await Event.find({ creator: user.id });
-    const attendedByUser = await AttendanceRequest.find({
-      user: user.id,
-    }).populate(`event`);
+
+    const attendedByUser = await AttendanceRequest.find(
+      { user: user.id },
+      {__v: 0}
+      )
+      .populate(`event`)
+      .populate(
+        {
+          path: `creator`,
+          select: {name: 1, imageUrl: 1}
+        }
+      );
+
 
     res.status(200).json({ createdByUser, attendedByUser });
   } catch (err) {

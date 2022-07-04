@@ -8,7 +8,7 @@ function notFound(req, res, next) {
   res.status(404)
     .json({
       errors: {
-        resource: `Requested resource not found`
+        resource: `requested resource not found`
       }
     });
 };
@@ -32,13 +32,13 @@ async function internalError(err, req, res, next) {
             service: 'Gmail',
             auth: {
               user: process.env.EMAIL_USERNAME,
-              pass: process.env.EMAIL_PASSWORD
+              pass: process.env.APP_PASSWORD
             }
           });
 
           // use .env for the from field
           const emailResMsg = await transporter.sendMail({
-            from: `'Evently ' <${process.env.EMAIL_USERNAME}>`,
+            from: `Evently <${process.env.EMAIL_USERNAME}>`,
             to: foundUser.email,
             subject: 'Email Verification',
             text: `${process.env.BASE_URL}/verify/?email=${foundUser.email}&token=${verifToken}`
@@ -48,9 +48,9 @@ async function internalError(err, req, res, next) {
         }
       }
 
-      authentication = `Expired token`;
+      authentication = `expired token`;
     } else {
-      authentication = `Invalid token`;
+      authentication = `invalid token`;
     }
 
     res.status(401).json({ authentication });
@@ -99,7 +99,7 @@ async function internalError(err, req, res, next) {
     res.status(404)
       .json({
         errors: {
-          server: `Internal server error`
+          server: `internal server error`
         }
       });
   }

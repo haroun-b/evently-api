@@ -45,13 +45,13 @@ router.post("/", uploader.single("file"), async (req, res, next) => {
       service: "Gmail",
       auth: {
         user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD,
+        pass: process.env.APP_PASSWORD,
       },
     });
 
     // use .env for the from field
     const emailResMsg = await transporter.sendMail({
-      from: `'Evently ' <${process.env.EMAIL_USERNAME}>`,
+      from: `Evently <${process.env.EMAIL_USERNAME}>`,
       to: createdUser.email,
       subject: "Email Verification",
       text: `${process.env.BASE_URL}/verify?email=${createdUser.email}&token=${verifToken}`,

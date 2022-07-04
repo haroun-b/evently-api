@@ -15,12 +15,12 @@ router.patch(`/`, async (req, res, next) => {
     let resetToken = req.query.token;
 
     if (resetToken) {
-      const { email } = jwt.verify(resetToken, process.env.TOKEN_SECRET);
+      const { userId } = jwt.verify(resetToken, process.env.TOKEN_SECRET);
       if (!password) {
         res.status(400)
           .json({
             errors: {
-              password: `To reset your password, please provide a new one`
+              password: `to reset your password, please provide a new one`
             }
           });
         return;
@@ -34,9 +34,9 @@ router.patch(`/`, async (req, res, next) => {
       const salt = await bcrypt.genSalt(10),
         hashedPassword = await bcrypt.hash(password, salt);
 
-      await User.findOneAndUpdate({ email }, { password: hashedPassword });
+      await User.findByIdAndUpdate(userId, { password: hashedPassword });
 
-      res.status(200).json({ message: `You've successfully updated your password! Please login to continue.` });
+      res.status(200).json({ message: `password successfully updated! please login to continue` });
       return;
     }
 
@@ -44,7 +44,7 @@ router.patch(`/`, async (req, res, next) => {
       res.status(400)
         .json({
           errors: {
-            email: `To reset your password, please provide an email`
+            email: `to reset your password, please provide an email`
           }
         });
       return;
@@ -52,7 +52,7 @@ router.patch(`/`, async (req, res, next) => {
 
     const foundUser = await User.findOne({ email });
     if (!foundUser) {
-      handleNotExist(`email`, email, res);
+      handleNotExist(`user`, email, res);
       return;
     }
     
@@ -67,13 +67,13 @@ router.patch(`/`, async (req, res, next) => {
       service: "Gmail",
       auth: {
         user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD,
+        pass: process.env.APP_PASSWORD,
       },
     });
 
     // use .env for the from field
     const emailResMsg = await transporter.sendMail({
-      from: `'Evently ' <${process.env.EMAIL_USERNAME}>`,
+      from: `Evently <${process.env.EMAIL_USERNAME}>`,
       to: foundUser.email,
       subject: "Password Reset",
       text: `${process.env.BASE_URL}/reset-password/?token=${resetToken}`
@@ -81,7 +81,7 @@ router.patch(`/`, async (req, res, next) => {
 
     console.log(emailResMsg);
 
-    res.status(200).json({ message: `A password reset link was sent to your email!` });
+    res.status(200).json({ message: `password reset link sent` });
   } catch (err) {
     next(err);
   }

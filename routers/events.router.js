@@ -22,7 +22,7 @@ router.get(`/`, async (req, res, next) => {
       startAfter,
       endBefore,
       maxPrice,
-      type,
+      category,
       search,
       requiresApproval,
       isGroupEvent,
@@ -74,8 +74,8 @@ router.get(`/`, async (req, res, next) => {
       filterQuery.price = { $lte: maxPrice };
     }
 
-    if (type) {
-      filterQuery.type = type;
+    if (category) {
+      filterQuery.category = category;
     }
 
     if (requiresApproval !== undefined) {
@@ -194,7 +194,7 @@ router.post("/", uploader.single("file"), async (req, res, next) => {
       endAt,
       attendees,
       description,
-      type,
+      category,
       approvalRequired,
     } = req.body;
     startAt = new Date(startAt);
@@ -208,7 +208,7 @@ router.post("/", uploader.single("file"), async (req, res, next) => {
       endAt,
       attendees,
       description,
-      type,
+      category,
       imageUrl,
       approvalRequired,
     });
@@ -254,7 +254,7 @@ router.patch(
         endAt,
         attendees,
         description,
-        type,
+        category,
         approvalRequired,
       } = req.body;
 
@@ -272,7 +272,7 @@ router.patch(
           endAt,
           attendees,
           description,
-          type,
+          category,
           approvalRequired,
           imageUrl,
         },

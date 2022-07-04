@@ -11,7 +11,7 @@ router.get(`/`, async (req, res, next) => {
     if (!verifToken) {
       res.status(400).json({
         errors: {
-          verifToken: `Verification token missing`,
+          verifToken: `verification token missing`,
         },
       });
       return;
@@ -26,7 +26,7 @@ router.get(`/`, async (req, res, next) => {
     );
 
     if (!foundUser) {
-      handleNotExist(`userId`, userId, res);
+      handleNotExist(`user`, userId, res);
       return;
     }
 
@@ -34,13 +34,13 @@ router.get(`/`, async (req, res, next) => {
       service: "Gmail",
       auth: {
         user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD,
+        pass: process.env.APP_PASSWORD,
       },
     });
 
     // use .env for the from field
     const emailResMsg = await transporter.sendMail({
-      from: `'Evently ' <${process.env.EMAIL_USERNAME}>`,
+      from: `Evently <${process.env.EMAIL_USERNAME}>`,
       to: foundUser.email,
       subject: "Email Verification",
       text: `You are now a verified user!`,
