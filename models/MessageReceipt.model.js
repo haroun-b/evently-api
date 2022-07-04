@@ -11,18 +11,7 @@ const messageReceiptSchema = new Schema({
     ref: `Message`,
     required: true
   },
-  received: {
-    by: {
-      type: Schema.Types.ObjectId,
-      ref: `User`,
-      required: true
-    },
-    at: {
-      type: Date,
-      required: true
-    }
-  },
-  seen: {
+  read: {
     by: {
       type: Schema.Types.ObjectId,
       ref: `User`,
