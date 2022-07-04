@@ -221,8 +221,8 @@ router.post("/", uploader.single("file"), async (req, res, next) => {
 // edit event by id
 router.patch(
   `/:eventId`,
-  uploader.single("file"),
   validateIds,
+  uploader.single("file"),
   async (req, res, next) => {
     try {
       const { eventId } = req.params;
