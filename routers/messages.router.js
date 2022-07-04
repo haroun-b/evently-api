@@ -4,6 +4,7 @@ const Event = require("../models/Event.model");
 const Message = require("../models/Message.model");
 const AttendanceRequest = require(`../models/AttendanceRequest.model`);
 const { handleNotExist } = require("../utils/helpers.function");
+const MessageReceipt = require("../models/MessageReceipt.model");
 
 
 // ==========================================================
@@ -49,13 +50,62 @@ router.get(`/events/:eventId`, validateIds, async (req, res, next) => {
       {
         sort: { createdAt: 1 },
         limit: 50,
-        skip: 50 * page
+        skip: 50 * page,
+        select: {__v: 0}
       }
     )
 
-    // TODO: ADD MESSAGE RECEIPTS
+    const msgReceiptPromises = [];
+
+    eventMessages.forEach(msg => {
+      msgReceiptPromises.push(
+        MessageReceipt.find(
+          { message: msg.id },
+          {read: 1, _id: 0}
+        ).populate(
+          {
+            path: `read.by`,
+            select: {name: 1, imageUrl: 1}
+          }
+        )
+      )
+    });
+
+    const msgReceipts = await Promise.all(msgReceiptPromises);
+
+    eventMessages.forEach((msg, i) => {
+      msg._doc.read = msgReceipts[i].map(receipt => receipt.read);
+    });
 
     res.status(200).json(eventMessages);
+
+    // read receipts
+    const userReceiptPromises = [];
+
+    eventMessages.forEach(msg => {
+      userReceiptPromises.push(
+        MessageReceipt.findOne(
+          { message: msg.id, "read.by": user.id }
+        )
+      )
+    });
+
+    const userReceipts = await Promise.all(userReceiptPromises);
+
+    userReceipts.forEach((receipt, i) => {
+      if (!receipt) {
+        MessageReceipt.create(
+          {
+            message: eventMessages[i].id,
+            read: {
+              by: user.id,
+              at: Date.now()
+            }
+          }
+        )
+      }
+    });
+
   } catch (err) {
     next(err);
   }
@@ -133,8 +183,8 @@ router.patch(`/:messageId`, validateIds, async (req, res, next) => {
 // delete a message for one event by event id and message id
 router.delete(`/:messageId`, validateIds, async (req, res, next) => {
   try {
-    const {messageId} = req.params;
-    const {user} = req;
+    const { messageId } = req.params;
+    const { user } = req;
 
     const foundMessage = await Message.findById(messageId);
 
@@ -148,7 +198,7 @@ router.delete(`/:messageId`, validateIds, async (req, res, next) => {
       return;
     }
 
-    await Message.findByIdAndUpdate(messageId, {author: null, message: null});
+    await Message.findByIdAndUpdate(messageId, { author: null, message: null });
 
     res.sendStatus(204);
   } catch (err) {

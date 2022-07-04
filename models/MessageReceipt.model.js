@@ -1,11 +1,6 @@
 const { Schema, model } = require(`mongoose`);
 
 const messageReceiptSchema = new Schema({
-  event: {
-    type: Schema.Types.ObjectId,
-    ref: `Event`,
-    required: true
-  },
   message: {
     type: Schema.Types.ObjectId,
     ref: `Message`,
