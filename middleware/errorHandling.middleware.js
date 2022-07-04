@@ -67,7 +67,7 @@ async function internalError(err, req, res, next) {
       const key = Object.entries(errors).flat()[0];
 
       errors[key] += ` already exists. Try logging in instead`;
-      res.status(400).json({ errors });
+      res.status(401).json({ errors });
       return;
     }
 
@@ -96,7 +96,7 @@ async function internalError(err, req, res, next) {
 
   // only renders if the error occurred before sending the response
   if (!res.headersSent) {
-    res.status(404)
+    res.status(500)
       .json({
         errors: {
           server: `internal server error`
