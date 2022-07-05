@@ -12,6 +12,7 @@ const MessageReceipt = require("../models/MessageReceipt.model");
 // get events based on filter values
 router.get(`/`, async (req, res, next) => {
   try {
+    const {user} = req;
     const filterQuery = {};
 
     let {
@@ -29,9 +30,6 @@ router.get(`/`, async (req, res, next) => {
       page = 0,
     } = req.query;
 
-    // console.log(req.query)
-    // res.sendStatus(200)
-    // return
 
     if (!longitude && !latitude) {
       if (city) {
@@ -98,6 +96,10 @@ router.get(`/`, async (req, res, next) => {
         { title: new RegExp(search, `ig`) },
         { description: new RegExp(search, `ig`) },
       ];
+    }
+
+    if (user) {
+      filterQuery.creator = {$ne: user.id};
     }
 
     console.log({ filterQuery });
