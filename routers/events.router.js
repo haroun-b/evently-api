@@ -167,6 +167,10 @@ router.get(`/:eventId`, validateIds, async (req, res, next) => {
         { event: eventId },
         { status: `approved` }
       );
+      foundEvent._doc.attendees.myStatus = await AttendanceRequest.findOne(
+        { event: eventId },
+        { user: user.id }
+      );
     }
 
     res.status(200).json(foundEvent);
