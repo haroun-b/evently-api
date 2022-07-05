@@ -19,8 +19,7 @@ router.post(`/:eventId/attendees`, validateIds, async (req, res, next) => {
     const { eventId } = req.params;
 
     const foundAttendanceRequest = await AttendanceRequest.findOne(
-      { user: userId },
-      { event: eventId }
+      { user: userId , event: eventId }
     );
 
     if (foundAttendanceRequest) {
@@ -62,8 +61,7 @@ router.delete(`/:eventId/attendees`, async (req, res, next) => {
     const { eventId } = req.params;
 
     await AttendanceRequest.findOneAndDelete(
-      { user: userId },
-      { event: eventId }
+      { user: userId , event: eventId }
     );
 
     res.sendStatus(204);
