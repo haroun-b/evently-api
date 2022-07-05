@@ -12,7 +12,7 @@ const MessageReceipt = require("../models/MessageReceipt.model");
 // get events based on filter values
 router.get(`/`, async (req, res, next) => {
   try {
-    const {user} = req;
+    const { user } = req;
     const filterQuery = {};
 
     let {
@@ -29,7 +29,6 @@ router.get(`/`, async (req, res, next) => {
       isGroupEvent,
       page = 0,
     } = req.query;
-
 
     if (!longitude && !latitude) {
       if (city) {
@@ -99,7 +98,7 @@ router.get(`/`, async (req, res, next) => {
     }
 
     if (user) {
-      filterQuery.creator = {$ne: user.id};
+      filterQuery.creator = { $ne: user.id };
     }
 
     console.log({ filterQuery });
@@ -115,9 +114,10 @@ router.get(`/`, async (req, res, next) => {
     // an array of promises when resolved becomes an array of numbers. where each number represent the count of all the approved attendees for the event with the same index in filteredEvents
     const EventsAttendeesCountPromises = [];
 
-
-    filteredEvents.forEach(evnt => {
-      EventsAttendeesCountPromises.push(AttendanceRequest.count({ event: evnt.id }, { status: `approved` }));
+    filteredEvents.forEach((evnt) => {
+      EventsAttendeesCountPromises.push(
+        AttendanceRequest.count({ event: evnt.id }, { status: `approved` })
+      );
     });
 
     const EventsApprovedAttendeesCount = await Promise.all(
@@ -161,13 +161,14 @@ router.get(`/:eventId`, validateIds, async (req, res, next) => {
       foundEvent._doc.attendees.requests = await AttendanceRequest.find({
         event: eventId,
       });
+      foundEvent._doc.myStatus = "creator";
     } else {
       // appends all approved attendance requests to the found event
       foundEvent._doc.attendees.approved = await AttendanceRequest.find(
         { event: eventId },
         { status: `approved` }
       );
-      foundEvent._doc.attendees.myStatus = await AttendanceRequest.findOne(
+      foundEvent._doc.myStatus = await AttendanceRequest.findOne(
         { event: eventId },
         { user: user.id }
       );
