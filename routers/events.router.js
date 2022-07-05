@@ -116,7 +116,7 @@ router.get(`/`, async (req, res, next) => {
 
     filteredEvents.forEach((evnt) => {
       EventsAttendeesCountPromises.push(
-        AttendanceRequest.count({ event: evnt.id }, { status: `approved` })
+        AttendanceRequest.count({ event: evnt.id, status: `approved` })
       );
     });
 
@@ -164,14 +164,14 @@ router.get(`/:eventId`, validateIds, async (req, res, next) => {
       foundEvent._doc.myStatus = "creator";
     } else {
       // appends all approved attendance requests to the found event
-      foundEvent._doc.attendees.approved = await AttendanceRequest.find(
-        { event: eventId },
-        { status: `approved` }
-      );
-      foundEvent._doc.myStatus = await AttendanceRequest.findOne(
-        { event: eventId },
-        { user: user.id }
-      );
+      foundEvent._doc.attendees.approved = await AttendanceRequest.find({
+        event: eventId,
+        status: `approved`,
+      });
+      foundEvent._doc.myStatus = await AttendanceRequest.findOne({
+        event: eventId,
+        user: user.id,
+      });
     }
 
     res.status(200).json(foundEvent);
