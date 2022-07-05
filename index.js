@@ -1,7 +1,7 @@
 const express = require(`express`),
   app = express(),
   logger = require("morgan"),
-  cors = require('cors');
+  cors = require("cors");
 
 // provides access to environment variables/settings
 require("dotenv/config");
@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // TODO: restrict cors to only allow requests coming from the front end
 // this allows cross origin resource sharing
-app.set('trust proxy', 1);
+app.set("trust proxy", 1);
 app.use(cors());
 
 // 👇 Start handling routes here
@@ -29,7 +29,7 @@ app.use(`/`, require(`./routers/index.router`));
 app.use(require(`./middleware/errorHandling.middleware`));
 
 // starts the server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server listening on http://localhost:${PORT}`);
 });
