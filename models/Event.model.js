@@ -11,16 +11,16 @@ const eventSchema = new Schema(
     },
     address: {
       city: {
-        type:String,
-        required: true
+        type: String,
+        required: true,
       },
       postcode: {
-        type:String,
-        required: true
+        type: String,
+        required: true,
       },
       street: {
-        type:String,
-        required: true
+        type: String,
+        required: true,
       },
     },
     location: {
