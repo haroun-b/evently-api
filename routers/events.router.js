@@ -32,7 +32,7 @@ router.get(`/`, async (req, res, next) => {
 
     if (!longitude && !latitude) {
       if (city) {
-        filterQuery.address = {city: new RegExp(city, `ig`)};
+        filterQuery["address.city"] = new RegExp(city, `gi`);
       } else {
         //use ip address
         const ip = requestIp.getClientIp(req);
@@ -105,7 +105,7 @@ router.get(`/`, async (req, res, next) => {
     let filteredEvents = await Event.find(
       filterQuery,
       {},
-      { sort: { startAt: 1 }, skip: page * 2, limit: 2 }
+      { sort: { startAt: 1 }, skip: page * 20, limit: 20 }
     ).populate({
       path: `creator`,
       select: { password: 0, email: 0, __v: 0 },
