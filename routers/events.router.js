@@ -33,7 +33,7 @@ router.get(`/`, async (req, res, next) => {
 
     if (!longitude && !latitude) {
       if (city) {
-        filterQuery["address.city"] = new RegExp(city, `ig`);
+        filterQuery.address = {city: new RegExp(city, `ig`)};
       } else {
         //use ip address
         const ip = requestIp.getClientIp(req);
