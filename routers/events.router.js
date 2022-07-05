@@ -68,7 +68,7 @@ router.get(`/`, async (req, res, next) => {
       filterQuery.endAt = { $lte: Date.parse(endBefore) };
     }
 
-    if (maxPrice) {
+    if (maxPrice !== undefined) {
       filterQuery.price = { $lte: maxPrice };
     }
 
