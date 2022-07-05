@@ -10,9 +10,18 @@ const eventSchema = new Schema(
       trim: true,
     },
     address: {
-      city: String,
-      postcode: String,
-      street: String,
+      city: {
+        type:String,
+        required: true
+      },
+      postcode: {
+        type:String,
+        required: true
+      },
+      street: {
+        type:String,
+        required: true
+      },
     },
     location: {
       type: {
@@ -24,6 +33,7 @@ const eventSchema = new Schema(
         type: [Number],
         required: true,
       },
+      required: true
     },
     startAt: {
       type: Date,
