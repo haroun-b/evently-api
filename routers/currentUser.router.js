@@ -15,7 +15,11 @@ router.get("/", async (req, res, next) => {
   try {
     const { id } = req.user;
 
-    const userInfo = await User.findById(id, { password: 0, isVerified: 0, __v: 0 });
+    const userInfo = await User.findById(id, {
+      password: 0,
+      isVerified: 0,
+      __v: 0,
+    });
 
     res.status(200).json(userInfo);
   } catch (error) {
@@ -30,7 +34,6 @@ const uploader = require("../config/cloudinary.config");
 
 router.patch("/", uploader.single("file"), async (req, res, next) => {
   try {
-
     const id = req.user.id;
 
     // User can only modify his 'name', 'bio' and 'image'
@@ -41,7 +44,7 @@ router.patch("/", uploader.single("file"), async (req, res, next) => {
       { name, bio, imageUrl },
       {
         runValidators: true,
-        new: true
+        new: true,
       }
     );
 
@@ -71,16 +74,14 @@ router.get(`/events`, async (req, res, next) => {
 
     const attendedByUser = await AttendanceRequest.find(
       { user: user.id },
-      {__v: 0}
-      )
+      { __v: 0 }
+    )
       .populate(`event`)
-      .populate(
-        {
-          path: `creator`,
-          select: {name: 1, imageUrl: 1}
-        }
-      );
-
+      .populate({
+        path: `creator`,
+        select: { name: 1, imageUrl: 1 },
+        strictPopulate: false,
+      });
 
     res.status(200).json({ createdByUser, attendedByUser });
   } catch (err) {
