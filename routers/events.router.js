@@ -173,7 +173,7 @@ router.get(`/:eventId`, validateIds, async (req, res, next) => {
           event: eventId,
           user: user.id,
         })
-      ).status;
+      )?.status;
     }
 
     res.status(200).json(foundEvent);
