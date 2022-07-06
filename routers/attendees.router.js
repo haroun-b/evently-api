@@ -20,7 +20,10 @@ router.post(`/:eventId/attendees`, validateIds, async (req, res, next) => {
 
     const foundAttendanceRequest = await AttendanceRequest.findOne(
       { user: userId , event: eventId }
-    );
+    ).populate({
+      path: `user`,
+      select: { password: 0, email: 0, __v: 0 },
+    });
 
     if (foundAttendanceRequest) {
       res.status(201).json(foundAttendanceRequest);
@@ -46,6 +49,8 @@ router.post(`/:eventId/attendees`, validateIds, async (req, res, next) => {
       status,
       event: eventId,
     });
+
+    createdAttendanceRequest._doc.user = req.user;
 
     res.status(201).json(createdAttendanceRequest);
 
