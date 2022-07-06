@@ -160,13 +160,19 @@ router.get(`/:eventId`, validateIds, async (req, res, next) => {
       // appends all attendance requests to the found event
       foundEvent._doc.attendees.requests = await AttendanceRequest.find({
         event: eventId,
-      });
+      }).populate({
+          path: `user`,
+          select: { password: 0, email: 0, __v: 0 },
+        });
       foundEvent._doc.myStatus = "creator";
     } else {
       // appends all approved attendance requests to the found event
       foundEvent._doc.attendees.approved = await AttendanceRequest.find({
         event: eventId,
         status: `approved`,
+      }).populate({
+        path: `user`,
+        select: { password: 0, email: 0, __v: 0 },
       });
       foundEvent._doc.myStatus = (
         await AttendanceRequest.findOne({
