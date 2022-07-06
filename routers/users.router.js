@@ -4,11 +4,11 @@ const validateIds = require("../middleware/idValidation.middleware");
 const { handleNotExist } = require("../utils/helpers.function");
 
 
-// get a user's profile by user id
-router.get("/:id", validateIds, async (req, res, next) => {
+// get a user's profile by username
+router.get("/:username", async (req, res, next) => {
   try {
-    const {id} = req.params;
-    const userInfo = await User.findById(id, { username: 1, name: 1, bio: 1, badges: 1, imageUrl: 1 });
+    const { username } = req.params;
+    const userInfo = await User.findOne({ username }, { username: 1, name: 1, bio: 1, badges: 1, imageUrl: 1 });
 
     if (!userInfo) {
       handleNotExist("user", id, res);
