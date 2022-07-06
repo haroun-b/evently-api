@@ -5,7 +5,7 @@ const { handleNotExist } = require("../utils/helpers.function");
 
 
 // get a user's profile by username
-router.get("/:username", validateIds, async (req, res, next) => {
+router.get("/:username", async (req, res, next) => {
   try {
     const { username } = req.params;
     const userInfo = await User.findOne({ username }, { username: 1, name: 1, bio: 1, badges: 1, imageUrl: 1 });
