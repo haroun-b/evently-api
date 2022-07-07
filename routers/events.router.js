@@ -9,6 +9,23 @@ const geoip = require("geoip-lite");
 const Message = require("../models/Message.model");
 const MessageReceipt = require("../models/MessageReceipt.model");
 
+const uploader = require("../config/cloudinary.config");
+const { handleImagePath } = require(`../utils/helpers.function`);
+
+
+// ==========================================================
+// users are authenticated but access is not restricted
+// ==========================================================
+router.use(require("../middleware/auth.middleware"));
+// ==========================================================
+
+// ==========================================================
+// access restricted to authenticated users only
+// ==========================================================
+router.use(require(`../middleware/accessRestricting.middleware`));
+// ==========================================================
+
+
 // get events based on filter values
 router.get(`/`, async (req, res, next) => {
   try {
@@ -98,7 +115,7 @@ router.get(`/`, async (req, res, next) => {
     }
 
     if (user) {
-      filterQuery.creator = { $ne: user.id };
+      filterQuery.creator = { $ne: user._id };
     }
 
     console.log({ filterQuery });
@@ -134,11 +151,6 @@ router.get(`/`, async (req, res, next) => {
   }
 });
 
-// ==========================================================
-// users are authenticated but access is not restricted
-// ==========================================================
-router.use(require("../middleware/auth.middleware"));
-// ==========================================================
 
 // get event by id
 router.get(`/:eventId`, validateIds, async (req, res, next) => {
@@ -187,14 +199,6 @@ router.get(`/:eventId`, validateIds, async (req, res, next) => {
     next(err);
   }
 });
-
-// ==========================================================
-// access restricted to authenticated users only
-// ==========================================================
-router.use(require(`../middleware/accessRestricting.middleware`));
-const uploader = require("../config/cloudinary.config");
-const { handleImagePath } = require(`../utils/helpers.function`);
-// ==========================================================
 
 // create event
 router.post("/", uploader.single("file"), async (req, res, next) => {
