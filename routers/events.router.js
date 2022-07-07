@@ -73,7 +73,6 @@ router.get(`/`, async (req, res, next) => {
       };
     }
 
-    // TODO: handle date related errors
     // TODO: only show events where approved < maximum
 
     if (startAfter) {
@@ -145,7 +144,11 @@ router.get(`/`, async (req, res, next) => {
       evnt._doc.attendees.approvedCount = EventsApprovedAttendeesCount[i];
     });
 
-    res.status(200).json({ city, events: filteredEvents });
+    const eventsWithOpenSpots = filteredEvents.filter(
+      (evnt) => evnt.attendees.maximum > evnt._doc.attendees.approvedCount
+    )
+
+    res.status(200).json({ city, events: eventsWithOpenSpots });
   } catch (err) {
     next(err);
   }
@@ -173,9 +176,9 @@ router.get(`/:eventId`, validateIds, async (req, res, next) => {
       foundEvent._doc.attendees.requests = await AttendanceRequest.find({
         event: eventId,
       }).populate({
-          path: `user`,
-          select: { password: 0, email: 0, __v: 0 },
-        });
+        path: `user`,
+        select: { password: 0, email: 0, __v: 0 },
+      });
       foundEvent._doc.myStatus = "creator";
     } else {
       // appends all approved attendance requests to the found event
