@@ -75,7 +75,11 @@ router.get(`/events`, async (req, res, next) => {
   try {
     const { user } = req;
 
-    const createdByUser = await Event.find({ creator: user.id });
+    const createdByUser = await Event.find({ creator: user.id })
+      .populate({
+        path: `creator`,
+        select: { name: 1, imageUrl: 1 },
+      });
 
     const attendedByUser = await AttendanceRequest.find(
       { user: user.id },
