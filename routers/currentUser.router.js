@@ -45,6 +45,11 @@ router.patch("/", uploader.single("file"), async (req, res, next) => {
       {
         runValidators: true,
         new: true,
+        select: {
+          password: 0,
+          isVerified: 0,
+          __v: 0,
+        }
       }
     );
 
