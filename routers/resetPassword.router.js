@@ -1,6 +1,7 @@
 const {
   isValidPassword,
   handleInvalidPassword,
+  handleNotExist,
 } = require(`../utils/helpers.function`),
   router = require(`express`).Router(),
   User = require(`../models/User.model`),
