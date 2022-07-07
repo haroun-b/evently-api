@@ -81,16 +81,17 @@ router.get(`/events`, async (req, res, next) => {
         select: { username: 1, name: 1, imageUrl: 1 },
       });
 
-    const attendedByUser = await AttendanceRequest.find(
+    const attendedByUser = (await AttendanceRequest.find(
       { user: user.id },
-      { __v: 0 }
+      { event: 1, _id: 0 }
     )
-      .populate(`event`)
       .populate({
-        path: `creator`,
-        select: { username: 1, name: 1, imageUrl: 1 },
-        strictPopulate: false,
-      });
+        path: `event`,
+        populate: {
+          path: `creator`,
+          select: { username: 1, name: 1, imageUrl: 1 }
+        }
+      })).map(i => i.event);
 
     res.status(200).json({ createdByUser, attendedByUser });
   } catch (err) {
