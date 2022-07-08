@@ -45,6 +45,11 @@ router.patch("/", uploader.single("file"), async (req, res, next) => {
       {
         runValidators: true,
         new: true,
+        select: {
+          password: 0,
+          isVerified: 0,
+          __v: 0,
+        }
       }
     );
 
@@ -70,7 +75,11 @@ router.get(`/events`, async (req, res, next) => {
   try {
     const { user } = req;
 
-    const createdByUser = await Event.find({ creator: user.id });
+    const createdByUser = await Event.find({ creator: user.id })
+      .populate({
+        path: `creator`,
+        select: { username: 1, name: 1, imageUrl: 1 },
+      });
 
     const attendedByUser = await AttendanceRequest.find(
       { user: user.id },
@@ -79,7 +88,7 @@ router.get(`/events`, async (req, res, next) => {
       .populate(`event`)
       .populate({
         path: `creator`,
-        select: { name: 1, imageUrl: 1 },
+        select: { username: 1, name: 1, imageUrl: 1 },
         strictPopulate: false,
       });
 
