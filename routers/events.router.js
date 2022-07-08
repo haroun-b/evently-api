@@ -9,6 +9,23 @@ const geoip = require("geoip-lite");
 const Message = require("../models/Message.model");
 const MessageReceipt = require("../models/MessageReceipt.model");
 
+const uploader = require("../config/cloudinary.config");
+const { handleImagePath } = require(`../utils/helpers.function`);
+
+
+// ==========================================================
+// users are authenticated but access is not restricted
+// ==========================================================
+router.use(require("../middleware/auth.middleware"));
+// ==========================================================
+
+// ==========================================================
+// access restricted to authenticated users only
+// ==========================================================
+router.use(require(`../middleware/accessRestricting.middleware`));
+// ==========================================================
+
+
 // get events based on filter values
 router.get(`/`, async (req, res, next) => {
   try {
@@ -56,7 +73,6 @@ router.get(`/`, async (req, res, next) => {
       };
     }
 
-    // TODO: handle date related errors
     // TODO: only show events where approved < maximum
 
     if (startAfter) {
@@ -98,7 +114,7 @@ router.get(`/`, async (req, res, next) => {
     }
 
     if (user) {
-      filterQuery.creator = { $ne: user.id };
+      filterQuery.creator = { $ne: user._id };
     }
 
     console.log({ filterQuery });
@@ -128,17 +144,16 @@ router.get(`/`, async (req, res, next) => {
       evnt._doc.attendees.approvedCount = EventsApprovedAttendeesCount[i];
     });
 
-    res.status(200).json({ city, events: filteredEvents });
+    const eventsWithOpenSpots = filteredEvents.filter(
+      (evnt) => evnt.attendees.maximum > evnt._doc.attendees.approvedCount
+    )
+
+    res.status(200).json({ city, events: eventsWithOpenSpots });
   } catch (err) {
     next(err);
   }
 });
 
-// ==========================================================
-// users are authenticated but access is not restricted
-// ==========================================================
-router.use(require("../middleware/auth.middleware"));
-// ==========================================================
 
 // get event by id
 router.get(`/:eventId`, validateIds, async (req, res, next) => {
@@ -161,9 +176,9 @@ router.get(`/:eventId`, validateIds, async (req, res, next) => {
       foundEvent._doc.attendees.requests = await AttendanceRequest.find({
         event: eventId,
       }).populate({
-          path: `user`,
-          select: { password: 0, email: 0, __v: 0 },
-        });
+        path: `user`,
+        select: { password: 0, email: 0, __v: 0 },
+      });
       foundEvent._doc.myStatus = "creator";
     } else {
       // appends all approved attendance requests to the found event
@@ -187,14 +202,6 @@ router.get(`/:eventId`, validateIds, async (req, res, next) => {
     next(err);
   }
 });
-
-// ==========================================================
-// access restricted to authenticated users only
-// ==========================================================
-router.use(require(`../middleware/accessRestricting.middleware`));
-const uploader = require("../config/cloudinary.config");
-const { handleImagePath } = require(`../utils/helpers.function`);
-// ==========================================================
 
 // create event
 router.post("/", uploader.single("file"), async (req, res, next) => {
